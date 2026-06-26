@@ -1,0 +1,139 @@
+server:
+  port: 8080
+
+
+spring:
+
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+
+            - id: auth-login
+              uri: lb://usuarios
+              predicates:
+                - Path=/api/v1/auth
+
+            - id: usuarios-persons
+              uri: lb://usuarios
+              predicates:
+                - Path=/api/v1/persons/**
+              filters:
+                - jwtFilter
+
+            - id: usuarios-roles
+              uri: lb://usuarios
+              predicates:
+                - Path=/api/v1/roles/**
+              filters:
+                - jwtFilter
+
+            - id: usuarios-logins
+              uri: lb://usuarios
+              predicates:
+                - Path=/api/v1/logins/**
+              filters:
+                - jwtFilter
+
+
+            - id: catalogo-products
+              uri: lb://catalogo
+              predicates:
+                - Path=/api/v1/products/**
+              filters:
+                - jwtFilter
+
+            - id: catalogo-categories
+              uri: lb://catalogo
+              predicates:
+                - Path=/api/v1/categories/**
+              filters:
+                - jwtFilter
+
+
+            - id: inventario
+              uri: lb://inventario
+              predicates:
+                - Path=/api/v1/inventory/**
+              filters:
+                - jwtFilter
+
+
+            - id: carrito
+              uri: lb://carrito
+              predicates:
+                - Path=/api/v1/carts/**
+              filters:
+                - jwtFilter
+
+
+            - id: compra
+              uri: lb://compra
+              predicates:
+                - Path=/api/v1/compras/**
+              filters:
+                - jwtFilter
+
+
+            - id: pago
+              uri: lb://pago
+              predicates:
+                - Path=/api/v1/pagos/**
+              filters:
+                - jwtFilter
+
+
+            - id: promociones
+              uri: lb://promociones
+              predicates:
+                - Path=/api/v1/promociones/**
+              filters:
+                - jwtFilter
+
+
+            - id: seguimiento
+              uri: lb://seguimiento
+              predicates:
+                - Path=/api/v1/seguimientos/**
+              filters:
+                - jwtFilter
+
+
+            - id: notificaciones
+              uri: lb://notificaciones
+              predicates:
+                - Path=/api/v1/notificaciones/**
+              filters:
+                - jwtFilter
+
+
+            - id: puntos
+              uri: lb://puntos
+              predicates:
+                - Path=/api/v1/puntos/**
+              filters:
+                - jwtFilter
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+
+app:
+  jwt:
+    secret: VGhpcy1Jcy1BLVZlcnktU2VjdXJlLVNlY3JldC1LZXktRm9yLUpXVC1BcGktQXV0aGVudGljYXRpb24=
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web.servlet.function: TRACE
+    org.springframework.cloud.gateway.server.mvc: TRACE
+    org.springframework.cloud.gateway.server.webmvc: TRACE
