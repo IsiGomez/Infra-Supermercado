@@ -48,7 +48,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+      - ./sql/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -57,14 +57,14 @@ services:
 
 
   eureka-server:
-    build: Supermercado-Infra-main/eureka-server
+    build: eureka-server
     container_name: eureka-server
     ports:
       - "8761:8761"
 
 
   api-gateway:
-    build: Supermercado-Infra-main/api-gateway
+    build: api-gateway
     container_name: api-gateway
     depends_on:
       - eureka-server
@@ -75,7 +75,7 @@ services:
 
 
   usuarios:
-    build: ./usuarios
+    build: usuarios
     container_name: usuarios
     depends_on:
       mysql:
@@ -90,7 +90,7 @@ services:
 
 
   catalogo:
-    build: Supermercado-Infra-main/ms-catalogo-main/catalogo
+    build: catalogo
     container_name: catalogo
     depends_on:
       mysql:
@@ -105,7 +105,7 @@ services:
 
 
   inventario:
-    build: Supermercado-Infra-main/ms-inventario-main/inventario
+    build: inventario
     container_name: inventario
     depends_on:
       mysql:
@@ -123,7 +123,7 @@ services:
 
 
   carrito:
-    build: Supermercado-Infra-main/ms-carrito-main/carrito
+    build: carrito
     container_name: carrito
     depends_on:
       mysql:
@@ -138,7 +138,7 @@ services:
 
 
   compra:
-    build: Supermercado-Infra-main/Proyecto-Supermercado-Microservicio-Compra-main/Compra
+    build: compra
     container_name: compra
     depends_on:
       mysql:
@@ -156,7 +156,7 @@ services:
 
 
   pago:
-    build: Supermercado-Infra-main/pago
+    build: pago
     container_name: pago
     depends_on:
       mysql:
@@ -171,7 +171,7 @@ services:
 
 
   promociones:
-    build: Supermercado-Infra-main/promociones
+    build: promociones
     container_name: promociones
     depends_on:
       mysql:
@@ -186,7 +186,7 @@ services:
 
 
   seguimiento:
-    build: Supermercado-Infra-main/seguimiento
+    build: seguimiento
     container_name: seguimiento
     depends_on:
       mysql:
@@ -204,7 +204,7 @@ services:
 
 
   notificaciones:
-    build: Supermercado-Infra-main/notificaciones
+    build: notificaciones
     container_name: notificaciones
     depends_on:
       mysql:
@@ -222,7 +222,7 @@ services:
 
 
   puntos:
-    build: Supermercado-Infra-main/puntos
+    build: puntos
     container_name: puntos
     depends_on:
       mysql:
