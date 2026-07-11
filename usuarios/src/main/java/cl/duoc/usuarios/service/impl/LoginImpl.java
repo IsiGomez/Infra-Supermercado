@@ -110,6 +110,20 @@ public class LoginImpl implements LoginService {
         return true;
     }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean esPropietario(Long loginId, Long personIdToken) {
+        if (personIdToken == null) {
+            return false;
+        }
+
+        Long personIdDelLogin = loginRepository.findPersonIdByLoginId(loginId).orElse(null);
+
+        return personIdDelLogin != null && personIdDelLogin.equals(personIdToken);
+    }
+
+
     private Person findPersonById(Long personId) {
         return personRepository.findById(personId)
                 .orElseThrow(() -> new EntityNotFoundException("Persona no encontrada con id: " + personId));

@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 .hasAnyRole("FUNCIONARIO", "CLIENTE")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/puntos/*/canje/confirmar")
-                                .hasAnyRole("FUNCIONARIO", "CLIENTE")
+                                .hasAnyRole("CLIENTE")
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/puntos")
                                 .hasRole("FUNCIONARIO")

@@ -106,6 +106,33 @@ public class LoginImplTest {
 
 
     @Test
+    @DisplayName("getByIdInfo: debe retornar LoginAllResponseDto cuando el id existe")
+    void getByIdInfo_deberiaRetornarDto_cuandoExiste() {
+        when(loginRepository.findById(1L)).thenReturn(Optional.of(login));
+        when(loginMapper.toDtoInfo(login)).thenReturn(allResponseDto);
+
+        LoginAllResponseDto resultado = service.getByIdInfo(1L);
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getUsername()).isEqualTo("cliente01");
+        verify(loginRepository, times(1)).findById(1L);
+    }
+
+
+    @Test
+    @DisplayName("getByIdInfo: debe lanzar excepción si el id no existe")
+    void getByIdInfo_deberiaLanzarExcepcion_cuandoNoExiste() {
+        when(loginRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getByIdInfo(99L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("99");
+
+        verify(loginMapper, never()).toDtoInfo(any());
+    }
+
+
+    @Test
     @DisplayName("getAll: debe retornar la lista de todos los logins")
     void getAll_deberiaRetornarLista() {
         when(loginRepository.findAll()).thenReturn(List.of(login));
@@ -169,6 +196,73 @@ public class LoginImplTest {
 
 
     @Test
+    @DisplayName("update: debe actualizar el login cuando los datos son válidos")
+    void update_deberiaActualizarLogin_cuandoDatosSonValidos() {
+        LoginRequestDto dtoActualizado = new LoginRequestDto("clienteNuevo", "nuevaPass", 1L, 2L);
+
+        when(loginRepository.findById(1L)).thenReturn(Optional.of(login));
+        when(loginRepository.existsByUsernameIgnoreCaseAndIdNot("clienteNuevo", 1L)).thenReturn(false);
+        when(loginRepository.existsByPersonIdAndIdNot(1L, 1L)).thenReturn(false);
+        when(personRepository.findById(1L)).thenReturn(Optional.of(person));
+        when(rolRepository.findById(2L)).thenReturn(Optional.of(rol));
+        when(passwordEncoder.encode("nuevaPass")).thenReturn("hashedNuevaPass");
+        when(loginRepository.save(any(Login.class))).thenReturn(login);
+        when(loginMapper.toDtoInfo(login)).thenReturn(allResponseDto);
+
+        LoginAllResponseDto resultado = service.update(1L, dtoActualizado);
+
+        assertThat(resultado).isNotNull();
+        verify(passwordEncoder, times(1)).encode("nuevaPass");
+        verify(loginRepository, times(1)).save(login);
+        assertThat(login.getUsername()).isEqualTo("clienteNuevo");
+        assertThat(login.getPassword()).isEqualTo("hashedNuevaPass");
+    }
+
+
+    @Test
+    @DisplayName("update: debe lanzar excepción si el login no existe")
+    void update_deberiaLanzarExcepcion_cuandoLoginNoExiste() {
+        when(loginRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(99L, requestDto))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("99");
+
+        verify(loginRepository, never()).save(any());
+    }
+
+
+    @Test
+    @DisplayName("update: debe lanzar excepción si el nuevo username ya está en uso")
+    void update_deberiaLanzarExcepcion_cuandoUsernameYaEstaEnUso() {
+        LoginRequestDto dtoConflicto = new LoginRequestDto("otroUsuario", "pass123", 1L, 2L);
+        when(loginRepository.findById(1L)).thenReturn(Optional.of(login));
+        when(loginRepository.existsByUsernameIgnoreCaseAndIdNot("otroUsuario", 1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.update(1L, dtoConflicto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("otroUsuario");
+
+        verify(loginRepository, never()).save(any());
+    }
+
+
+    @Test
+    @DisplayName("update: debe lanzar excepción si la persona ya tiene otro login")
+    void update_deberiaLanzarExcepcion_cuandoPersonaYaTieneOtroLogin() {
+        when(loginRepository.findById(1L)).thenReturn(Optional.of(login));
+        when(loginRepository.existsByUsernameIgnoreCaseAndIdNot("cliente01", 1L)).thenReturn(false);
+        when(loginRepository.existsByPersonIdAndIdNot(1L, 1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.update(1L, requestDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("La persona ya tiene un login asociado");
+
+        verify(loginRepository, never()).save(any());
+    }
+
+
+    @Test
     @DisplayName("delete: debe retornar true cuando el login existe y se elimina")
     void delete_deberiaRetornarTrue_cuandoExiste() {
         when(loginRepository.existsById(1L)).thenReturn(true);
@@ -189,5 +283,48 @@ public class LoginImplTest {
 
         assertThat(resultado).isFalse();
         verify(loginRepository, never()).deleteById(any());
+    }
+
+
+    @Test
+    @DisplayName("esPropietario: debe retornar true cuando el personId del token coincide con el dueño del login")
+    void esPropietario_deberiaRetornarTrue_cuandoCoincideElDueño() {
+        when(loginRepository.findPersonIdByLoginId(1L)).thenReturn(Optional.of(1L));
+
+        boolean resultado = service.esPropietario(1L, 1L);
+
+        assertThat(resultado).isTrue();
+    }
+
+
+    @Test
+    @DisplayName("esPropietario: debe retornar false cuando el personId del token no coincide con el dueño del login")
+    void esPropietario_deberiaRetornarFalse_cuandoNoCoincideElDueño() {
+        when(loginRepository.findPersonIdByLoginId(1L)).thenReturn(Optional.of(1L));
+
+        boolean resultado = service.esPropietario(1L, 2L);
+
+        assertThat(resultado).isFalse();
+    }
+
+
+    @Test
+    @DisplayName("esPropietario: debe retornar false cuando el login no existe")
+    void esPropietario_deberiaRetornarFalse_cuandoLoginNoExiste() {
+        when(loginRepository.findPersonIdByLoginId(99L)).thenReturn(Optional.empty());
+
+        boolean resultado = service.esPropietario(99L, 1L);
+
+        assertThat(resultado).isFalse();
+    }
+
+
+    @Test
+    @DisplayName("esPropietario: debe retornar false cuando el personId del token es null")
+    void esPropietario_deberiaRetornarFalse_cuandoTokenEsNull() {
+        boolean resultado = service.esPropietario(1L, null);
+
+        assertThat(resultado).isFalse();
+        verify(loginRepository, never()).findPersonIdByLoginId(any());
     }
 }

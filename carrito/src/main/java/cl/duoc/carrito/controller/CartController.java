@@ -6,6 +6,7 @@ import cl.duoc.carrito.dto.request.CartItemRequestDto;
 import cl.duoc.carrito.dto.request.CartRequestDto;
 import cl.duoc.carrito.dto.response.CartItemResponseDto;
 import cl.duoc.carrito.dto.response.CartResponseDto;
+import cl.duoc.carrito.dto.response.ExceptionDto;
 import cl.duoc.carrito.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -272,8 +273,12 @@ public class CartController {
         Long userIdDelToken = SecurityUtil.currentUserId();
 
         if (userIdDelToken == null || !userIdDelToken.equals(userIdDeLaUrl)) {
+            ExceptionDto error = new ExceptionDto(
+                    "Acceso denegado",
+                    "No puedes operar sobre el carrito de otro usuario"
+            );
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Acceso denegado: no puedes operar sobre el carrito de otro usuario.");
+                    .body(error);
         }
 
         return null;

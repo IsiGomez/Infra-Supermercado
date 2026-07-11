@@ -58,8 +58,10 @@ public class JwtWebMvcFilter implements HandlerFilterFunction<ServerResponse, Se
                 rolesStr = rolesList.stream()
                         .map(Object::toString)
                         .collect(java.util.stream.Collectors.joining(","));
-            } else if (roles != null) {
-                rolesStr = roles.toString();
+            } else {
+                if (roles != null) {
+                    rolesStr = roles.toString();
+                }
             }
 
             logger.info("Token válido para: {}. Usuario: {}, Roles: {}", path, username, rolesStr);

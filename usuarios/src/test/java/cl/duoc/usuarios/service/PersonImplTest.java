@@ -191,4 +191,31 @@ public class PersonImplTest {
         assertThat(result).isFalse();
         verify(personRepository, never()).deleteById(any());
     }
+
+
+    @Test
+    @DisplayName("esPropietario: debería retornar true cuando el personId coincide con el token")
+    void esPropietario_deberiaRetornarTrue_cuandoCoincideElId() {
+        boolean result = personService.esPropietario(1L, 1L);
+
+        assertThat(result).isTrue();
+    }
+
+
+    @Test
+    @DisplayName("esPropietario: debería retornar false cuando el personId no coincide con el token")
+    void esPropietario_deberiaRetornarFalse_cuandoNoCoincideElId() {
+        boolean result = personService.esPropietario(1L, 2L);
+
+        assertThat(result).isFalse();
+    }
+
+
+    @Test
+    @DisplayName("esPropietario: debería retornar false cuando el personId del token es null")
+    void esPropietario_deberiaRetornarFalse_cuandoTokenEsNull() {
+        boolean result = personService.esPropietario(1L, null);
+
+        assertThat(result).isFalse();
+    }
 }
