@@ -22,15 +22,21 @@ public class ProductModelAssembler
     public EntityModel<ProductResponseDto> toModel(ProductResponseDto dto) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(ProductController.class).getById(dto.getId())).withSelfRel());
-        links.add(linkTo(methodOn(ProductController.class).getAll()).withRel("products"));
+        links.add(linkTo(methodOn(ProductController.class)
+                .getById(dto.getId())).withSelfRel());
+
+        links.add(linkTo(methodOn(ProductController.class)
+                .getAll()).withRel("products"));
+
         links.add(linkTo(methodOn(ProductController.class)
                 .getByCategoryId(dto.getCategory() != null ? dto.getCategory().getId() : null))
                 .withRel("by-category"));
 
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(ProductController.class).update(dto.getId(), null)).withRel("update"));
-            links.add(linkTo(methodOn(ProductController.class).delete(dto.getId())).withRel("delete"));
+            links.add(linkTo(methodOn(ProductController.class)
+                    .update(dto.getId(), null)).withRel("update"));
+            links.add(linkTo(methodOn(ProductController.class)
+                    .delete(dto.getId())).withRel("delete"));
         }
 
         return EntityModel.of(dto, links);

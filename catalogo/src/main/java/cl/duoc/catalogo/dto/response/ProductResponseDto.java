@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter             @Setter
 @AllArgsConstructor @NoArgsConstructor
-@Schema(name = "ExceptionDto", description = "DTO de respuesta de producto")
+@Schema(name = "ProductResponseDto", description = "DTO de respuesta de producto")
 public class ProductResponseDto {
 
     @Schema(description = "ID del producto", example = "1")

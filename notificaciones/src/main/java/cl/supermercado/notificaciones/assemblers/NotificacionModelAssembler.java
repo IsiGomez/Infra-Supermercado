@@ -1,10 +1,15 @@
 package cl.supermercado.notificaciones.assemblers;
 
+import cl.supermercado.notificaciones.config.SecurityUtil;
 import cl.supermercado.notificaciones.controller.NotificacionController;
 import cl.supermercado.notificaciones.dto.response.NotificacionResponseDto;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -15,13 +20,22 @@ public class NotificacionModelAssembler
 
     @Override
     public EntityModel<NotificacionResponseDto> toModel(NotificacionResponseDto dto) {
-        return EntityModel.of(dto,
-                linkTo(methodOn(NotificacionController.class).listarPorUsuario(dto.getUsuarioId()))
-                        .withSelfRel(),
-                linkTo(methodOn(NotificacionController.class).marcarComoLeida(dto.getId()))
-                        .withRel("marcar-leida")
-        );
+        List<Link> links = new ArrayList<>();
 
+        links.add(linkTo(methodOn(NotificacionController.class)
+                .listarPorUsuario(dto.getUsuarioId())).withSelfRel());
+
+        if (SecurityUtil.isFuncionario()) {
+            links.add(linkTo(methodOn(NotificacionController.class)
+                    .enviar(null)).withRel("enviar-notificacion"));
+        }
+
+        if (SecurityUtil.isCliente()) {
+            links.add(linkTo(methodOn(NotificacionController.class)
+                    .marcarComoLeida(dto.getId())).withRel("marcar-leida"));
+        }
+
+        return EntityModel.of(dto, links);
     }
 
 }

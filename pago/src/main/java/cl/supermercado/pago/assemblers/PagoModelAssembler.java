@@ -22,14 +22,17 @@ public class PagoModelAssembler
     public EntityModel<PagoResponseDto> toModel(PagoResponseDto dto) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(PagoController.class)
-                .obtenerUltimoPagoExitoso(dto.getUsuarioId())).withSelfRel());
-        links.add(linkTo(methodOn(PagoController.class)
-                .tieneUltimoPagoExitoso(dto.getUsuarioId())).withRel("estado"));
-
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(PagoController.class).listarPagos())
-                    .withRel("todos-los-pagos"));
+            links.add(linkTo(methodOn(PagoController.class)
+                    .listarPagos()).withSelfRel());
+        } else {
+            links.add(linkTo(methodOn(PagoController.class)
+                    .obtenerUltimoPagoExitoso(dto.getUsuarioId())).withSelfRel());
+        }
+
+        if (SecurityUtil.isCliente()) {
+            links.add(linkTo(methodOn(PagoController.class)
+                    .tieneUltimoPagoExitoso(dto.getUsuarioId())).withRel("estado"));
         }
 
         return EntityModel.of(dto, links);

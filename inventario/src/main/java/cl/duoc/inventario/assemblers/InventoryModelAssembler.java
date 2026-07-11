@@ -22,10 +22,12 @@ public class InventoryModelAssembler
     public EntityModel<InventoryResponseDto> toModel(InventoryResponseDto dto) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(InventoryController.class).getStock(dto.getProductId())).withSelfRel());
+        links.add(linkTo(methodOn(InventoryController.class)
+                .getStock(dto.getProductId())).withSelfRel());
 
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(InventoryController.class).updateStock(null)).withRel("update-stock"));
+            links.add(linkTo(methodOn(InventoryController.class)
+                    .updateStock(null)).withRel("update-stock"));
         }
 
         return EntityModel.of(dto, links);

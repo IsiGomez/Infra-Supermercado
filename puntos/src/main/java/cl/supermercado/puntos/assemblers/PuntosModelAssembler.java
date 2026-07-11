@@ -22,18 +22,20 @@ public class PuntosModelAssembler
     public EntityModel<PuntosResponseDto> toModel(PuntosResponseDto dto) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(PuntosController.class).consultarPuntos(dto.getUsuarioId())).withSelfRel());
-        links.add(linkTo(methodOn(PuntosController.class).simularCanje(dto.getUsuarioId()))
-                .withRel("simular-canje"));
+        links.add(linkTo(methodOn(PuntosController.class)
+                .consultarPuntos(dto.getUsuarioId())).withSelfRel());
+
+        links.add(linkTo(methodOn(PuntosController.class)
+                .simularCanje(dto.getUsuarioId())).withRel("simular-canje"));
 
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(PuntosController.class).asignarPuntos(null))
-                    .withRel("asignar-puntos"));
+            links.add(linkTo(methodOn(PuntosController.class)
+                    .asignarPuntos(null)).withRel("asignar-puntos"));
         }
 
         if (SecurityUtil.isCliente()){
-            links.add(linkTo(methodOn(PuntosController.class).confirmarCanje(null))
-                    .withRel("confirmar-canje"));
+            links.add(linkTo(methodOn(PuntosController.class)
+                    .confirmarCanje(null)).withRel("confirmar-canje"));
         }
 
         return EntityModel.of(dto, links);

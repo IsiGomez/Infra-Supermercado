@@ -27,15 +27,20 @@ public class LoginModelAssembler
                 && dto.getPerson().getId() != null
                 && dto.getPerson().getId().equals(SecurityUtil.currentUserId());
 
-        links.add(linkTo(methodOn(LoginController.class).getById(dto.getId())).withSelfRel());
+        links.add(linkTo(methodOn(LoginController.class)
+                .getById(dto.getId())).withSelfRel());
 
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(LoginController.class).getAll()).withRel("logins"));
+            links.add(linkTo(methodOn(LoginController.class)
+                    .getAll()).withRel("logins"));
         }
 
         if (SecurityUtil.isFuncionario() || esPropio) {
-            links.add(linkTo(methodOn(LoginController.class).update(dto.getId(), new LoginRequestDto())).withRel("update"));
-            links.add(linkTo(methodOn(LoginController.class).delete(dto.getId())).withRel("delete"));
+            links.add(linkTo(methodOn(LoginController.class)
+                    .update(dto.getId(), new LoginRequestDto())).withRel("update"));
+
+            links.add(linkTo(methodOn(LoginController.class)
+                    .delete(dto.getId())).withRel("delete"));
         }
 
         return EntityModel.of(dto, links);

@@ -22,12 +22,18 @@ public class CategoryModelAssembler
     public EntityModel<CategoryResponseDto> toModel(CategoryResponseDto dto) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(CategoryController.class).getById(dto.getId())).withSelfRel());
-        links.add(linkTo(methodOn(CategoryController.class).getAll()).withRel("categories"));
+        links.add(linkTo(methodOn(CategoryController.class)
+                .getById(dto.getId())).withSelfRel());
+
+        links.add(linkTo(methodOn(CategoryController.class)
+                .getAll()).withRel("categories"));
 
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(CategoryController.class).update(dto.getId(), null)).withRel("update"));
-            links.add(linkTo(methodOn(CategoryController.class).delete(dto.getId())).withRel("delete"));
+            links.add(linkTo(methodOn(CategoryController.class)
+                    .update(dto.getId(), null)).withRel("update"));
+
+            links.add(linkTo(methodOn(CategoryController.class)
+                    .delete(dto.getId())).withRel("delete"));
         }
 
         return EntityModel.of(dto, links);
