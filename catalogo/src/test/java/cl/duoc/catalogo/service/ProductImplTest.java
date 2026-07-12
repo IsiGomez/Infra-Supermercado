@@ -254,4 +254,58 @@ public class ProductImplTest {
         verify(productRepository, never()).deleteById(anyLong());
     }
 
+
+    @Test
+    @DisplayName("getAll: debería devolver la lista de todos los productos")
+    void getAll_deberiaDevolverListaDeProductos() {
+        when(productRepository.findAll()).thenReturn(List.of(product));
+        when(productMapper.toDtoList(anyList())).thenReturn(List.of(responseDto));
+
+        List<ProductResponseDto> result = productService.getAll();
+
+        assertThat(result).hasSize(1);
+        verify(productRepository, times(1)).findAll();
+    }
+
+
+    @Test
+    @DisplayName("getByNameContainingIgnoreCase: debería devolver productos filtrados por nombre")
+    void getByNameContainingIgnoreCase_deberiaDevolverProductos_cuandoCoincideNombre() {
+        when(productRepository.findByNameContainingIgnoreCase("Leche")).thenReturn(List.of(product));
+        when(productMapper.toDtoList(anyList())).thenReturn(List.of(responseDto));
+
+        List<ProductResponseDto> result = productService.getByNameContainingIgnoreCase("Leche");
+
+        assertThat(result).hasSize(1);
+        verify(productRepository, times(1)).findByNameContainingIgnoreCase("Leche");
+    }
+
+
+    @Test
+    @DisplayName("getByCategoryId: debería devolver productos de la categoría si esta existe")
+    void getByCategoryId_deberiaDevolverProductos_cuandoCategoriaExiste() {
+        when(categoryRepository.existsById(2L)).thenReturn(true);
+        when(productRepository.findByCategoryId(2L)).thenReturn(List.of(product));
+        when(productMapper.toDtoList(anyList())).thenReturn(List.of(responseDto));
+
+        List<ProductResponseDto> result = productService.getByCategoryId(2L);
+
+        assertThat(result).hasSize(1);
+        verify(productRepository, times(1)).findByCategoryId(2L);
+    }
+
+
+    @Test
+    @DisplayName("getByCategoryIdAndPriceBetween: debería devolver productos cuando los filtros de precio son válidos")
+    void getByCategoryIdAndPriceBetween_deberiaDevolverProductos_cuandoDatosValidos() {
+        when(categoryRepository.existsById(2L)).thenReturn(true);
+        when(productRepository.findByCategoryIdAndPriceBetween(2L, 1000, 5000)).thenReturn(List.of(product));
+        when(productMapper.toDtoList(anyList())).thenReturn(List.of(responseDto));
+
+        List<ProductResponseDto> result = productService.getByCategoryIdAndPriceBetween(2L, 1000, 5000);
+
+        assertThat(result).hasSize(1);
+        verify(productRepository, times(1)).findByCategoryIdAndPriceBetween(2L, 1000, 5000);
+    }
+
 }

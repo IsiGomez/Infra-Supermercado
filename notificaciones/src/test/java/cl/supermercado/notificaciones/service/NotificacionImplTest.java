@@ -6,6 +6,7 @@ import cl.supermercado.notificaciones.mapper.NotificacionMapper;
 import cl.supermercado.notificaciones.model.Notificacion;
 import cl.supermercado.notificaciones.repository.NotificacionRepository;
 import cl.supermercado.notificaciones.service.impl.NotificacionServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -130,7 +131,7 @@ public class NotificacionImplTest {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> notificacionService.marcarComoLeida(99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Notificación no encontrada");
 
         verify(repository, never()).save(any());
@@ -153,6 +154,31 @@ public class NotificacionImplTest {
         assertThat(result.getUsuarioId()).isEqualTo(usuarioId);
         assertThat(result.getFechaEnvio()).isEqualTo(fechaOriginal);
         assertThat(result.getEnviado()).isTrue();
+    }
+
+
+    @Test
+    @DisplayName("obtenerPorId: debería retornar la notificación cuando existe")
+    void obtenerPorId_deberiaRetornarNotificacion_cuandoExiste() {
+        Notificacion n = new Notificacion(1L, usuarioId, "Mensaje", LocalDateTime.now(), true, false);
+        when(repository.findById(1L)).thenReturn(Optional.of(n));
+
+        NotificacionResponseDto result = notificacionService.obtenerPorId(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getMensaje()).isEqualTo("Mensaje");
+        verify(repository, times(1)).findById(1L);
+    }
+
+
+    @Test
+    @DisplayName("obtenerPorId: debería lanzar excepción cuando la notificación no existe")
+    void obtenerPorId_deberiaLanzarExcepcion_cuandoNoExiste() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> notificacionService.obtenerPorId(99L))
+                .isInstanceOf(jakarta.persistence.EntityNotFoundException.class)
+                .hasMessageContaining("Notificación no encontrada con id: 99");
     }
 
 }

@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,6 +71,21 @@ public class PagoImplTest {
 
 
     @Test
+    @DisplayName("obtenerUltimoPagoExitoso: debería retornar el DTO del pago cuando existe")
+    void obtenerUltimoPagoExitoso_deberiaRetornarPago_cuandoExiste() {
+        Pago pagoExitoso = new Pago(1L, usuarioId, 3000.0, "TARJETA", true, LocalDateTime.now());
+        when(repository.findTopByUsuarioIdAndExitosoTrueOrderByFechaPagoDesc(usuarioId))
+                .thenReturn(Optional.of(pagoExitoso));
+
+        PagoResponseDto result = pagoService.obtenerUltimoPagoExitoso(usuarioId);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getUsuarioId()).isEqualTo(usuarioId);
+        verify(repository, times(1)).findTopByUsuarioIdAndExitosoTrueOrderByFechaPagoDesc(usuarioId);
+    }
+
+
+    @Test
     @DisplayName("obtenerUltimoPagoExitoso: debería lanzar excepción cuando no existe pago exitoso")
     void obtenerUltimoPagoExitoso_deberiaLanzarExcepcion_cuandoNoExistePago() {
         when(repository.findTopByUsuarioIdAndExitosoTrueOrderByFechaPagoDesc(usuarioId))
@@ -78,6 +94,21 @@ public class PagoImplTest {
         assertThatThrownBy(() -> pagoService.obtenerUltimoPagoExitoso(usuarioId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("No existe un pago exitoso");
+    }
+
+
+    @Test
+    @DisplayName("procesarPago: debería procesar el pago exitosamente cuando el método es CREDITO")
+    void procesarPago_deberiaProcesarPago_cuandoMetodoEsCredito() {
+        PagoRequestDto request = new PagoRequestDto(usuarioId, "CREDITO");
+        when(carritoClient.obtenerTotalCarrito(usuarioId)).thenReturn(5000.0);
+        when(repository.save(any(Pago.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PagoResponseDto result = pagoService.procesarPago(request);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getExitoso()).isTrue();
+        assertThat(result.getMetodo()).isEqualTo("CREDITO");
     }
 
 
@@ -178,6 +209,19 @@ public class PagoImplTest {
         assertThatThrownBy(() -> pagoService.obtenerPorId(99L))
                 .isInstanceOf(jakarta.persistence.EntityNotFoundException.class)
                 .hasMessageContaining("99");
+    }
+
+
+    @Test
+    @DisplayName("listarPagos: debería retornar la lista de todos los pagos registrados")
+    void listarPagos_deberiaRetornarTodosLosPagos() {
+        Pago pago = new Pago(1L, usuarioId, 3000.0, "TARJETA", true, LocalDateTime.now());
+        when(repository.findAll()).thenReturn(List.of(pago));
+
+        List<PagoResponseDto> result = pagoService.listarPagos();
+
+        assertThat(result).hasSize(1);
+        verify(repository, times(1)).findAll();
     }
 
 }

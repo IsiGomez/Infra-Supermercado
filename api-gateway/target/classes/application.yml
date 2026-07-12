@@ -1,9 +1,14 @@
 server:
   port: 8080
 
+
 spring:
   application:
     name: api-gateway
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   cloud:
     gateway:
       server:
@@ -125,21 +130,7 @@ spring:
               filters:
                 - jwtFilter
 
+
 eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
-
-
-app:
-  jwt:
-    secret: VGhpcy1Jcy1BLVZlcnktU2VjdXJlLVNlY3JldC1LZXktRm9yLUpXVC1BcGktQXV0aGVudGljYXRpb24=
-
-logging:
-  level:
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.web.servlet.function: TRACE
-    org.springframework.cloud.gateway.server.mvc: TRACE
-    org.springframework.cloud.gateway.server.webmvc: TRACE

@@ -183,4 +183,20 @@ public class CompraImplTest {
                 .hasMessageContaining("99");
     }
 
+
+    @Test
+    @DisplayName("listarCompras: debería retornar la lista de todas las compras registradas")
+    void listarCompras_deberiaRetornarTodasLasCompras() {
+        Compra compra = new Compra(1L, usuarioId, 3000.0,
+                java.time.LocalDateTime.now(), true, true);
+
+        when(repository.findAll()).thenReturn(List.of(compra));
+
+        List<CompraResponseDto> result = compraService.listarCompras();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getUsuarioId()).isEqualTo(usuarioId);
+        verify(repository, times(1)).findAll();
+    }
+
 }
