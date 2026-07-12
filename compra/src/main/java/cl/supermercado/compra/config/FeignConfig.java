@@ -1,7 +1,10 @@
 package cl.supermercado.compra.config;
 
+import cl.supermercado.compra.exception.RecursoRemotoNoEncontradoException;
+import cl.supermercado.compra.exception.ServicioRemotoException;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import feign.codec.ErrorDecoder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,4 +34,25 @@ public class FeignConfig {
             }
         };
     }
+
+
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return (methodKey, response) -> {
+            String servicio = methodKey.substring(0, methodKey.indexOf('#'));
+
+            return switch (response.status()) {
+                case 404 -> new RecursoRemotoNoEncontradoException(servicio, methodKey);
+
+                case 400, 401, 403 -> new ServicioRemotoException(
+                        servicio, response.status(), "Solicitud rechazada por " + servicio);
+
+                case 500, 502, 503, 504 -> new ServicioRemotoException(
+                        servicio, response.status(), servicio + " no esta disponible");
+
+                default -> new ErrorDecoder.Default().decode(methodKey, response);
+            };
+        };
+    }
+
 }
