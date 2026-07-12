@@ -31,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.secret}")
     private String secretKey;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -55,13 +56,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .parseSignedClaims(token);
 
             Claims claims = claimsJws.getPayload();
-            String username = claims.getSubject();
+            Long userId = extractUserId(claims);
 
             List<SimpleGrantedAuthority> authorities = extractAuthorities(claims);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
@@ -70,6 +71,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+
+    private Long extractUserId(Claims claims) {
+        Object userId = claims.get("userId");
+        if (userId == null) return null;
+        if (userId instanceof Number n) return n.longValue();
+
+        try {
+            return Long.parseLong(userId.toString());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 

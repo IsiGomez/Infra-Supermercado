@@ -22,12 +22,15 @@ public class CompraModelAssembler
     public EntityModel<CompraResponseDto> toModel(CompraResponseDto dto) {
         List<Link> links = new ArrayList<>();
 
+        links.add(linkTo(methodOn(CompraController.class)
+                .obtenerPorId(dto.getId())).withSelfRel());
+
         if (SecurityUtil.isFuncionario()) {
             links.add(linkTo(methodOn(CompraController.class)
-                    .listarCompras()).withSelfRel());
+                    .listarCompras()).withRel("compras"));
         } else {
             links.add(linkTo(methodOn(CompraController.class)
-                    .listarComprasPorUsuario(dto.getUsuarioId())).withSelfRel());
+                    .listarComprasPorUsuario(dto.getUsuarioId())).withRel("historial-usuario"));
         }
 
         if (SecurityUtil.isCliente()) {

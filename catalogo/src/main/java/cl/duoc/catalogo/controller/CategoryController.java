@@ -40,11 +40,17 @@ public class CategoryController {
                tags = {"Módulo de Categorías → 1. Consultas de Categorías"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Categoría encontrada",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = CategoryHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<CategoryResponseDto>> getById(
@@ -59,10 +65,14 @@ public class CategoryController {
             tags = {"Módulo de Categorías → 1. Consultas de Categorías"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryCollectionOpenApi.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = CategoryCollectionOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<CategoryResponseDto>>> getAll() {
@@ -79,11 +89,17 @@ public class CategoryController {
                tags = {"Módulo de Categorías → 2. Acciones de Categorías"})
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Categoría creada exitosamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = CategoryHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping
     public ResponseEntity<EntityModel<CategoryResponseDto>> create(
@@ -99,11 +115,17 @@ public class CategoryController {
                tags = {"Módulo de Categorías → 2. Acciones de Categorías"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Categoría actualizada correctamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content),
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = CategoryHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "404", description = "Categoría no encontrada",
                          content = @Content(mediaType = "application/hal+json",
                          schema = @Schema(implementation = ExceptionDto.class))),
@@ -125,9 +147,15 @@ public class CategoryController {
                tags = {"Módulo de Categorías → 2. Acciones de Categorías"})
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Categoría eliminada correctamente"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -145,10 +173,10 @@ public class CategoryController {
         @Schema(
                 description = "Enlaces HATEOAS individuales para la categoria",
                 example = "{\n" +
-                        "  \"self\": { \"href\": \"http://localhost:8081/api/v1/categories/1\" },\n" +
-                        "  \"categories\": { \"href\": \"http://localhost:8081/api/v1/categories\" },\n" +
-                        "  \"update\": { \"href\": \"http://localhost:8081/api/v1/categories/1\" },\n" +
-                        "  \"delete\": { \"href\": \"http://localhost:8081/api/v1/categories/1\" }\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8082/api/v1/categories/1\" },\n" +
+                        "  \"categories\": { \"href\": \"http://localhost:8082/api/v1/categories\" },\n" +
+                        "  \"update\": { \"href\": \"http://localhost:8082/api/v1/categories/1\" },\n" +
+                        "  \"delete\": { \"href\": \"http://localhost:8082/api/v1/categories/1\" }\n" +
                         "}"
         )
 
@@ -168,9 +196,10 @@ public class CategoryController {
         @Schema(
                 description = "Enlaces HATEOAS de la colección de categories",
                 example = "{\n" +
-                        "  \"self\": { \"href\": \"http://localhost:8081/api/v1/categories\" }\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8082/api/v1/categories\" }\n" +
                         "}"
         )
+
         public Object _links;
 
         public static class EmbeddedData {

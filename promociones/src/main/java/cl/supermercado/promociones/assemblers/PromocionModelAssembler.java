@@ -23,13 +23,13 @@ public class PromocionModelAssembler
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(PromocionController.class)
-                .listarPromociones()).withSelfRel());
+                .obtenerPorCodigo(dto.getCodigo())).withSelfRel());
+
+        links.add(linkTo(methodOn(PromocionController.class)
+                .listarPromociones()).withRel("promociones"));
 
         links.add(linkTo(methodOn(PromocionController.class)
                 .listarVigentes()).withRel("promociones-vigente"));
-
-        links.add(linkTo(methodOn(PromocionController.class)
-                .obtenerPorCodigo(dto.getCodigo())).withRel("codigo-promocion"));
 
         if (SecurityUtil.isFuncionario()) {
             links.add(linkTo(methodOn(PromocionController.class)
@@ -38,4 +38,5 @@ public class PromocionModelAssembler
 
         return EntityModel.of(dto, links);
     }
+
 }

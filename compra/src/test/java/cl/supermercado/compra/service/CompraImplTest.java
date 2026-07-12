@@ -157,4 +157,30 @@ public class CompraImplTest {
         assertThat(result.get(0).getUsuarioId()).isEqualTo(usuarioId);
     }
 
+
+    @Test
+    @DisplayName("obtenerPorId: debería retornar la compra cuando existe")
+    void obtenerPorId_deberiaRetornarCompra_cuandoExiste() {
+        Compra compra = new Compra(1L, usuarioId, 3000.0,
+                java.time.LocalDateTime.now(), true, true);
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(compra));
+
+        CompraResponseDto result = compraService.obtenerPorId(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getUsuarioId()).isEqualTo(usuarioId);
+    }
+
+
+    @Test
+    @DisplayName("obtenerPorId: debería lanzar excepción cuando la compra no existe")
+    void obtenerPorId_deberiaLanzarExcepcion_cuandoNoExiste() {
+        when(repository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> compraService.obtenerPorId(99L))
+                .isInstanceOf(jakarta.persistence.EntityNotFoundException.class)
+                .hasMessageContaining("99");
+    }
+
 }

@@ -50,7 +50,12 @@ public class LoginController {
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = LoginCollectionOpenApi.class))),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<LoginAllResponseDto>>> getAll() {
@@ -74,6 +79,9 @@ public class LoginController {
             @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = LoginHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
@@ -100,8 +108,15 @@ public class LoginController {
                tags = {"Módulo de Cuentas → 1. Consultas de Cuentas"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Rol encontrado"),
-            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}/rol")
     public ResponseEntity<?> getRolById(
@@ -152,6 +167,9 @@ public class LoginController {
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
@@ -182,8 +200,15 @@ public class LoginController {
                tags = {"Módulo de Cuentas → 2. Acciones de Cuentas"})
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Cuenta eliminada correctamente"),
-            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(
@@ -211,6 +236,7 @@ public class LoginController {
             ExceptionDto error = new ExceptionDto(
                     "Acceso denegado",
                     "No puedes operar sobre la cuenta de otro usuario.");
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
         }
 

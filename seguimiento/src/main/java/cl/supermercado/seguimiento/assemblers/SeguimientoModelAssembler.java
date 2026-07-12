@@ -23,7 +23,10 @@ public class SeguimientoModelAssembler
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(SeguimientoController.class)
-                .historialPorCompra(dto.getCompraId())).withSelfRel());
+                .obtenerPorId(dto.getId())).withSelfRel());
+
+        links.add(linkTo(methodOn(SeguimientoController.class)
+                .historialPorCompra(dto.getCompraId())).withRel("historial-compra"));
 
         links.add(linkTo(methodOn(SeguimientoController.class)
                 .listarPorUsuario(dto.getUsuarioId())).withRel("seguimientos-usuario"));

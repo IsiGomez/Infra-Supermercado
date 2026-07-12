@@ -1,0 +1,16 @@
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\assemblers\PromocionModelAssembler.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\config\JwtAuthenticationFilter.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\config\OpenApiConfig.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\config\SecurityConfig.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\config\SecurityUtil.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\controller\handler\ApiExceptionHandler.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\controller\PromocionController.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\dto\request\PromocionRequestDto.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\dto\response\ExceptionDto.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\dto\response\PromocionResponseDto.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\mapper\PromocionMapper.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\model\Promocion.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\PromocionesApplication.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\repository\PromocionRepository.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\service\impl\PromocionServiceImpl.java
+C:\Users\isido\IdeaProjects\Infra-Supermercado-feedback\promociones\src\main\java\cl\supermercado\promociones\service\PromocionService.java

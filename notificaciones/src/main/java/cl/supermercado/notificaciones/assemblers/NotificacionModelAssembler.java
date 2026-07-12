@@ -23,7 +23,10 @@ public class NotificacionModelAssembler
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(NotificacionController.class)
-                .listarPorUsuario(dto.getUsuarioId())).withSelfRel());
+                .obtenerPorId(dto.getId())).withSelfRel());
+
+        links.add(linkTo(methodOn(NotificacionController.class)
+                .listarPorUsuario(dto.getUsuarioId())).withRel("notificaciones-usuario"));
 
         if (SecurityUtil.isFuncionario()) {
             links.add(linkTo(methodOn(NotificacionController.class)

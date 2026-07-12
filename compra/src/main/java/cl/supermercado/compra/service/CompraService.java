@@ -8,5 +8,6 @@ public interface CompraService {
     CompraResponseDto crearCompra(CompraRequestDto request);
     List<CompraResponseDto> listarCompras();
     List<CompraResponseDto> listarComprasPorUsuario(Long usuarioId);
+    CompraResponseDto obtenerPorId(Long id);
 
 }

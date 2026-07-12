@@ -50,7 +50,9 @@ public class PersonController {
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = PersonCollectionOpenApi.class))),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content)
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<PersonResponseDto>>> getAll() {
@@ -77,7 +79,9 @@ public class PersonController {
             @ApiResponse(responseCode = "403", description = "No puedes operar sobre los datos de otra persona",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
-            @ApiResponse(responseCode = "404", description = "Persona no encontrada", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Persona no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(
@@ -99,7 +103,9 @@ public class PersonController {
             @ApiResponse(responseCode = "201", description = "Persona creada exitosamente",
                          content = @Content(mediaType = "application/hal+json",
                          schema = @Schema(implementation = PersonHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping
     public ResponseEntity<EntityModel<PersonResponseDto>> create(
@@ -119,11 +125,15 @@ public class PersonController {
             @ApiResponse(responseCode = "200", description = "Persona actualizada correctamente",
                          content = @Content(mediaType = "application/hal+json",
                          schema = @Schema(implementation = PersonHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "403", description = "No puedes operar sobre los datos de otra persona",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
-            @ApiResponse(responseCode = "404", description = "Persona no encontrada", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Persona no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> update(
@@ -149,9 +159,15 @@ public class PersonController {
                tags = {"Módulo de Personas → 2. Acciones de Personas"})
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Persona eliminada correctamente"),
-            @ApiResponse(responseCode = "400", description = "Persona asociada a un login, no se puede borrar", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes operar sobre los datos de otra persona", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Persona no encontrada", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Persona asociada a un login, no se puede borrar",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre los datos de otra persona",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Persona no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(
@@ -180,6 +196,7 @@ public class PersonController {
             ExceptionDto error = new ExceptionDto(
                     "Acceso denegado",
                     "No puedes operar sobre los datos de otra persona.");
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
         }
         return null;

@@ -155,4 +155,29 @@ public class PagoImplTest {
         verify(repository, never()).save(any());
     }
 
+
+    @Test
+    @DisplayName("obtenerPorId: debería retornar el pago cuando existe")
+    void obtenerPorId_deberiaRetornarPago_cuandoExiste() {
+        Pago pago = new Pago(1L, usuarioId, 3000.0, "TARJETA", true, LocalDateTime.now());
+        when(repository.findById(1L)).thenReturn(Optional.of(pago));
+
+        PagoResponseDto result = pagoService.obtenerPorId(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getUsuarioId()).isEqualTo(usuarioId);
+    }
+
+
+    @Test
+    @DisplayName("obtenerPorId: debería lanzar excepción cuando el pago no existe")
+    void obtenerPorId_deberiaLanzarExcepcion_cuandoNoExiste() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> pagoService.obtenerPorId(99L))
+                .isInstanceOf(jakarta.persistence.EntityNotFoundException.class)
+                .hasMessageContaining("99");
+    }
+
 }

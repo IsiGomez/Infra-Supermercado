@@ -11,5 +11,6 @@ public interface NotificacionService {
 
     List<NotificacionResponseDto> listarPorUsuario(Long usuarioId);
     NotificacionResponseDto marcarComoLeida(Long id);
+    NotificacionResponseDto obtenerPorId(Long id);
 
 }

@@ -12,5 +12,6 @@ public interface SeguimientoService {
     List<SeguimientoResponseDto> listarSeguimientos();
     List<SeguimientoResponseDto> historialPorCompra(Long compraId);
     List<SeguimientoResponseDto> listarPorUsuario(Long usuarioId);
+    SeguimientoResponseDto obtenerPorId(Long id);
 
 }

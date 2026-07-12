@@ -6,6 +6,7 @@ import cl.supermercado.notificaciones.mapper.NotificacionMapper;
 import cl.supermercado.notificaciones.model.Notificacion;
 import cl.supermercado.notificaciones.repository.NotificacionRepository;
 import cl.supermercado.notificaciones.service.NotificacionService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,12 +42,23 @@ public class NotificacionServiceImpl implements NotificacionService {
 
 
     @Override
+    @Transactional(readOnly = true)
+    public NotificacionResponseDto obtenerPorId(Long id) {
+        Notificacion n = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Notificación no encontrada con id: " + id));
+
+        return mapper.toDto(n);
+    }
+
+
+    @Override
     @Transactional
     public NotificacionResponseDto marcarComoLeida(Long id) {
         Notificacion n = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Notificación no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Notificación no encontrada con id: " + id));
         n.setLeido(true);
         repository.save(n);
         return mapper.toDto(n);
     }
+
 }

@@ -32,4 +32,18 @@ public class SecurityUtil {
         return hasRole("CLIENTE");
     }
 
+    public static Long currentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || auth.getPrincipal() == null) {
+            return null;
+        }
+
+        if (auth.getPrincipal() instanceof Long userId) {
+            return userId;
+        }
+
+        return null;
+    }
+
 }

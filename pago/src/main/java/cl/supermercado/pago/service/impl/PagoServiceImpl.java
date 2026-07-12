@@ -85,4 +85,14 @@ public class PagoServiceImpl implements PagoService {
         return repository.findAll().stream().map(mapper::toDto).toList();
     }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagoResponseDto obtenerPorId(Long id) {
+        Pago pago = repository.findById(id)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
+                        "No existe un pago con id " + id));
+        return mapper.toDto(pago);
+    }
+
 }
