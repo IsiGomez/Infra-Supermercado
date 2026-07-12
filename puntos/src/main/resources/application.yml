@@ -40,8 +40,3 @@ spring:
             value:
               default:
                 type: cl.supermercado.puntos.event.CompraCompletadaEvent
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
