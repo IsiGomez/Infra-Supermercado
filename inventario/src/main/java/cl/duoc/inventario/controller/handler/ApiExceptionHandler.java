@@ -1,6 +1,8 @@
 package cl.duoc.inventario.controller.handler;
 
 import cl.duoc.inventario.dto.response.ExceptionDto;
+import cl.duoc.inventario.exception.RecursoRemotoNoEncontradoException;
+import cl.duoc.inventario.exception.ServicioRemotoException;
 import feign.RetryableException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -56,12 +58,29 @@ public class ApiExceptionHandler {
         return ResponseEntity.internalServerError().body(error);
     }
 
+    @ExceptionHandler(RecursoRemotoNoEncontradoException.class)
+    public ResponseEntity<ExceptionDto> handleRecursoRemotoNoEncontradoException(RecursoRemotoNoEncontradoException ex) {
+        ExceptionDto error = new ExceptionDto("Recurso no encontrado en servicio externo", ex.getMessage());
+
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ServicioRemotoException.class)
+    public ResponseEntity<ExceptionDto> handleServicioRemotoException(ServicioRemotoException ex) {
+        ExceptionDto error = new ExceptionDto("Error de comunicacion con servicio externo", ex.getMessage());
+        HttpStatus status = ex.getStatus() >= 500 ? HttpStatus.SERVICE_UNAVAILABLE : HttpStatus.BAD_GATEWAY;
+
+        log.error(ex.getMessage());
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionDto> handleException(Exception ex) {
         ExceptionDto error = new ExceptionDto("Ocurrio un error", ex.getMessage());
 
         log.error(ex.getMessage(), ex);
-        return ResponseEntity.badRequest().body(error);
+        return ResponseEntity.internalServerError().body(error);
     }
 
 }

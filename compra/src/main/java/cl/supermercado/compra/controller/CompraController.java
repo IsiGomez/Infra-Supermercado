@@ -46,9 +46,15 @@ public class CompraController {
             @ApiResponse(responseCode = "200", description = "Compra registrada correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CompraHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "400", description = "No hay pago exitoso o el carrito esta vacío", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes comprar a nombre de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "400", description = "No hay pago exitoso o el carrito esta vacío",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes comprar a nombre de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping
     public ResponseEntity<?> crearCompra(
@@ -72,7 +78,12 @@ public class CompraController {
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CompraCollectionOpenApi.class))),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<CompraResponseDto>>> listarCompras() {
@@ -91,6 +102,9 @@ public class CompraController {
             @ApiResponse(responseCode = "200", description = "Historial obtenido correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CompraCollectionOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "403", description = "No puedes ver las compras de otro usuario",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class)))
@@ -110,6 +124,36 @@ public class CompraController {
                 linkTo(methodOn(CompraController.class).listarComprasPorUsuario(usuarioId)).withSelfRel()));
     }
 
+    @Operation(summary = "Obtener una compra por id",
+            description = "Devuelve el detalle de una compra específica. Solo el dueño o un FUNCIONARIO pueden verla.",
+            tags = {"Módulo de Compras → 1. Consultas"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Compra encontrada",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CompraHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes ver la compra de otro usuario",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Compra no encontrada",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionDto.class)))
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(
+            @Parameter(description = "Id de la compra", required = true, example = "1")
+            @PathVariable Long id) {
+
+        CompraResponseDto compra = compraService.obtenerPorId(id);
+
+        if (!SecurityUtil.isFuncionario()) {
+            ResponseEntity<?> forbidden = verificarPropietario(compra.getUsuarioId());
+            if (forbidden != null) return forbidden;
+        }
+
+        return ResponseEntity.ok(assembler.toModel(compra));
+    }
+
+
 
     private ResponseEntity<?> verificarPropietario(Long usuarioIdSolicitado) {
         Long userIdDelToken = SecurityUtil.currentUserId();
@@ -121,6 +165,7 @@ public class CompraController {
 
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
         }
+
         return null;
     }
 
@@ -129,12 +174,13 @@ public class CompraController {
         @Schema(
                 description = "Enlaces HATEOAS individuales para la compra",
                 example = "{\n" +
-                        "  \"self\": { \"href\": \"http://localhost:8085/api/compras/usuario/2\" },\n" +
-                        "  \"historial-usuario\": { \"href\": \"http://localhost:8085/api/compras/usuario/2\" },\n" +
-                        "  \"compras\": { \"href\": \"http://localhost:8085/api/compras\" },\n" +
-                        "  \"crear-compra\": { \"href\": \"http://localhost:8085/api/compras\" }\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8085/api/v1/compras/1\" },\n" +
+                        "  \"historial-usuario\": { \"href\": \"http://localhost:8085/api/v1/compras/usuario/2\" },\n" +
+                        "  \"compras\": { \"href\": \"http://localhost:8085/api/v1/compras\" },\n" +
+                        "  \"crear-compra\": { \"href\": \"http://localhost:8085/api/v1/compras\" }\n" +
                         "}"
         )
+
         public Object _links;
 
         @Schema(example = "1", description = "Id de la compra")
@@ -163,9 +209,10 @@ public class CompraController {
         @Schema(
                 description = "Enlaces HATEOAS de la colección de compras",
                 example = "{\n" +
-                        "  \"self\": { \"href\": \"http://localhost:8085/api/compras\" }\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8085/api/v1/compras\" }\n" +
                         "}"
         )
+
         public Object _links;
 
         public static class EmbeddedData {

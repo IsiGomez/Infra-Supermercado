@@ -1,8 +1,8 @@
 package cl.duoc.carrito.config;
 
+import cl.duoc.carrito.dto.response.ExceptionDto;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,15 +46,15 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-                            response.getWriter().write("{\"error\": \"No autorizado\", \"message\": \"Falta el token o es invalido\"}");
+                            ExceptionDto error = new ExceptionDto("No autorizado", "Falta el token o es invalido");
+                            response.getWriter().write(objectMapper.writeValueAsString(error));
                         })
 
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.setContentType("application/json");
-                            response.getWriter().write(
-                                    "{\"error\": \"Acceso denegado\", \"message\": \"No tienes permisos para realizar esta acción\"}"
-                            );
+                            ExceptionDto error = new ExceptionDto("Acceso denegado", "No tienes permisos para realizar esta acción");
+                            response.getWriter().write(objectMapper.writeValueAsString(error));
                         })
                 )
 

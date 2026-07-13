@@ -3,6 +3,7 @@ package cl.supermercado.puntos.controller;
 import cl.supermercado.puntos.assemblers.PuntosModelAssembler;
 import cl.supermercado.puntos.config.SecurityUtil;
 import cl.supermercado.puntos.dto.request.PuntosRequestDto;
+import cl.supermercado.puntos.dto.response.ExceptionDto;
 import cl.supermercado.puntos.dto.response.PuntosResponseDto;
 import cl.supermercado.puntos.service.PuntosService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,11 +35,17 @@ public class PuntosController {
                tags = {"Módulo de Puntos → 1. Consultas"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Puntos encontrados",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PuntosResponseDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes consultar los puntos de otro usuario", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Usuario sin puntos registrados", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = PuntosHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes consultar los puntos de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario sin puntos registrados",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{usuarioId}")
     public ResponseEntity<?> consultarPuntos(
@@ -60,7 +67,12 @@ public class PuntosController {
                tags = {"Módulo de Puntos → 2. Canje"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Simulación calculada correctamente"),
-            @ApiResponse(responseCode = "403", description = "No puedes consultar los puntos de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes consultar los puntos de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{usuarioId}/canje/simular")
     public ResponseEntity<?> simularCanje(
@@ -82,8 +94,15 @@ public class PuntosController {
                tags = {"Módulo de Puntos → 2. Canje"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Canje realizado correctamente"),
-            @ApiResponse(responseCode = "400", description = "No hay suficientes puntos para canjear", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes canjear los puntos de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "400", description = "No hay suficientes puntos para canjear",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes canjear los puntos de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping("/{usuarioId}/canje/confirmar")
     public ResponseEntity<?> confirmarCanje(
@@ -101,10 +120,19 @@ public class PuntosController {
 
     @Operation(summary = "Asignar puntos manualmente (solo FUNCIONARIO)",
                description = "Herramienta administrativa. El flujo normal es automático vía Kafka " +
-                             "cuando el cliente completa una compra.",
+                             "cuando el cliente completa una compra. Pero el funcionario igual puede asignar mas puntos",
                tags = {"Módulo de Puntos → 3. Administración"})
-    @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
-                 content = @Content)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Asignacion de puntos realizado exitosamente",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = PuntosHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
+    })
     @PostMapping
     public ResponseEntity<EntityModel<PuntosResponseDto>> asignarPuntos(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -114,15 +142,40 @@ public class PuntosController {
     }
 
 
+
     private ResponseEntity<?> verificarPropietario(Long usuarioIdSolicitado) {
         Long userIdDelToken = SecurityUtil.currentUserId();
 
         if (userIdDelToken == null || !userIdDelToken.equals(usuarioIdSolicitado)) {
+            ExceptionDto error = new ExceptionDto(
+                    "Acceso denegado",
+                    "No puedes operar sobre los puntos de otro usuario."
+            );
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Acceso denegado: no puedes operar sobre los puntos de otro usuario.");
+                    .body(error);
         }
 
         return null;
+    }
+
+
+    class PuntosHateoasOpenApi {
+        @Schema(
+                description = "Enlaces HATEOAS individuales para los puntos del usuario",
+                example = "{\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8090/api/v1/puntos/2\" },\n" +
+                        "  \"simular-canje\": { \"href\": \"http://localhost:8090/api/v1/puntos/2/canje/simular\" },\n" +
+                        "  \"confirmar-canje\": { \"href\": \"http://localhost:8090/api/v1/puntos/2/canje/confirmar\" }\n" +
+                        "}"
+        )
+        public Object _links;
+
+        @Schema(example = "2", description = "Id del usuario")
+        public Long usuarioId;
+
+        @Schema(example = "150", description = "Cantidad de puntos acumulados")
+        public Integer puntosAcumulados;
     }
 
 }

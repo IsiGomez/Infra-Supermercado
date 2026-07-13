@@ -6,6 +6,7 @@ import cl.duoc.carrito.dto.request.CartItemRequestDto;
 import cl.duoc.carrito.dto.request.CartRequestDto;
 import cl.duoc.carrito.dto.response.CartItemResponseDto;
 import cl.duoc.carrito.dto.response.CartResponseDto;
+import cl.duoc.carrito.dto.response.ExceptionDto;
 import cl.duoc.carrito.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,8 +38,12 @@ public class CartController {
                tags = {"Módulo de Carrito → 1. Consultas de Carrito"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Total obtenido correctamente"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes acceder al carrito de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes acceder al carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/user/{userId}/total")
     public ResponseEntity<?> getTotal(
@@ -62,8 +67,12 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "Carrito obtenido correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CartEntityModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes acceder al carrito de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes acceder al carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getCart(
@@ -87,10 +96,18 @@ public class CartController {
             @ApiResponse(responseCode = "201", description = "Producto agregado correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CartEntityModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "Producto ya en el carrito o stock insuficiente", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado en catálogo", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Producto ya en el carrito o stock insuficiente",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado en catálogo",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping("/user/{userId}/item")
     public ResponseEntity<?> addItem(
@@ -116,10 +133,18 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "Cantidad actualizada correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CartEntityModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "Stock insuficiente", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado en el carrito", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Stock insuficiente",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado en el carrito",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PatchMapping("/user/{userId}/item/{productId}")
     public ResponseEntity<?> updateQuantity(
@@ -147,9 +172,15 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "Producto eliminado del carrito",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CartEntityModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado en el carrito", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado en el carrito",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @DeleteMapping("/user/{userId}/item/{productId}")
     public ResponseEntity<?> removeItem(
@@ -172,8 +203,12 @@ public class CartController {
                tags = {"Módulo de Carrito → 2. Acciones de Carrito"})
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Carrito vaciado correctamente"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @DeleteMapping("/user/{userId}/clear")
     public ResponseEntity<?> clearCart(
@@ -198,9 +233,15 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "Promoción aplicada correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CartEntityModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "Promoción inválida, expirada o carrito vacío", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Promoción inválida, expirada o carrito vacío",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping("/user/{userId}/promocion")
     public ResponseEntity<?> aplicarPromocion(
@@ -225,8 +266,12 @@ public class CartController {
                tags = {"Módulo de Carrito → 3. Canje de Puntos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Simulación calculada correctamente"),
-            @ApiResponse(responseCode = "400", description = "El carrito está vacío", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes acceder al carrito de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "400", description = "El carrito está vacío",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes acceder al carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/user/{userId}/canje/simular")
     public ResponseEntity<?> simularCanjePuntos(
@@ -251,8 +296,12 @@ public class CartController {
             @ApiResponse(responseCode = "200", description = "Canje aplicado al carrito correctamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = CartEntityModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "No hay suficientes puntos o carrito vacío", content = @Content),
-            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario", content = @Content)
+            @ApiResponse(responseCode = "400", description = "No hay suficientes puntos o el carrito esta vacío",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes modificar el carrito de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping("/user/{userId}/canje/confirmar")
     public ResponseEntity<?> confirmarCanjePuntos(
@@ -272,8 +321,12 @@ public class CartController {
         Long userIdDelToken = SecurityUtil.currentUserId();
 
         if (userIdDelToken == null || !userIdDelToken.equals(userIdDeLaUrl)) {
+            ExceptionDto error = new ExceptionDto(
+                    "Acceso denegado",
+                    "No puedes operar sobre el carrito de otro usuario"
+            );
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Acceso denegado: no puedes operar sobre el carrito de otro usuario.");
+                    .body(error);
         }
 
         return null;
@@ -284,12 +337,13 @@ public class CartController {
         @Schema(
                 description = "Enlaces HATEOAS del carrito",
                 example = "{\n" +
-                        "  \"self\": { \"href\": \"http://localhost:8082/api/v1/carts/user/2\" },\n" +
-                        "  \"total\": { \"href\": \"http://localhost:8082/api/v1/carts/user/2/total\" },\n" +
-                        "  \"add-item\": { \"href\": \"http://localhost:8082/api/v1/carts/user/2/item\" },\n" +
-                        "  \"clear\": { \"href\": \"http://localhost:8082/api/v1/carts/user/2/clear\" }\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8084/api/v1/carts/user/2\" },\n" +
+                        "  \"total\": { \"href\": \"http://localhost:8084/api/v1/carts/user/2/total\" },\n" +
+                        "  \"add-item\": { \"href\": \"http://localhost:8084/api/v1/carts/user/2/item\" },\n" +
+                        "  \"clear\": { \"href\": \"http://localhost:8084/api/v1/carts/user/2/clear\" }\n" +
                         "}"
         )
+
         public Object _links;
 
         public Long id;

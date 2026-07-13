@@ -1,6 +1,7 @@
 package cl.duoc.usuarios.controller;
 
 import cl.duoc.usuarios.assemblers.RolModelAssembler;
+import cl.duoc.usuarios.dto.response.ExceptionDto;
 import cl.duoc.usuarios.dto.response.PersonResponseDto;
 import cl.duoc.usuarios.dto.response.RolResponseDto;
 import cl.duoc.usuarios.service.RolService;
@@ -65,7 +66,9 @@ public class RolController {
             @ApiResponse(responseCode = "200", description = "Rol encontrado",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = RolHateoasOpenApi.class))),
-            @ApiResponse(responseCode = "404", description = "Rol no encontrado", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Rol no encontrado",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<RolResponseDto>> getById(

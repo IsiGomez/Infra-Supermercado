@@ -14,4 +14,6 @@ public interface LoginService {
     LoginAllResponseDto create(LoginRequestDto dto);
     LoginAllResponseDto update(Long id, LoginRequestDto dto);
     boolean delete(Long id);
+
+    boolean esPropietario(Long loginId, Long personIdToken);
 }

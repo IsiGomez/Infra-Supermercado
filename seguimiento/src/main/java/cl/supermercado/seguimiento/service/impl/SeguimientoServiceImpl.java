@@ -6,6 +6,7 @@ import cl.supermercado.seguimiento.mapper.SeguimientoMapper;
 import cl.supermercado.seguimiento.model.Seguimiento;
 import cl.supermercado.seguimiento.repository.SeguimientoRepository;
 import cl.supermercado.seguimiento.service.SeguimientoService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,15 @@ public class SeguimientoServiceImpl implements SeguimientoService {
     @Transactional(readOnly = true)
     public List<SeguimientoResponseDto> listarPorUsuario(Long usuarioId) {
         return repository.findByUsuarioId(usuarioId).stream().map(mapper::toDto).toList();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public SeguimientoResponseDto obtenerPorId(Long id) {
+        Seguimiento s = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Seguimiento no encontrado con id: " + id));
+        return mapper.toDto(s);
     }
 
 }

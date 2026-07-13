@@ -75,6 +75,11 @@ public class CartImplTest {
 
         product = new ProductDto(productId, "Arroz 1kg", "Arroz grado 1", 1500, null);
         stock = new InventoryDto(1L, productId, 20);
+
+        org.springframework.hateoas.CollectionModel<org.springframework.hateoas.EntityModel<ProductDto>> mockCollection =
+                org.springframework.hateoas.CollectionModel.of(java.util.List.of(org.springframework.hateoas.EntityModel.of(product)));
+
+        lenient().when(catalogoClient.getProductsByIds(any())).thenReturn(mockCollection);
     }
 
 

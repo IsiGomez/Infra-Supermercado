@@ -158,4 +158,32 @@ public class SeguimientoImplTest {
         verify(repository, times(1)).findByUsuarioId(usuarioId);
     }
 
+
+    @Test
+    @DisplayName("obtenerPorId: debería retornar el seguimiento correctamente cuando existe")
+    void obtenerPorId_deberiaRetornarSeguimiento_cuandoExiste() {
+        Seguimiento seguimiento = new Seguimiento(1L, compraId, usuarioId, "PENDIENTE", LocalDateTime.now());
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(seguimiento));
+
+        SeguimientoResponseDto result = seguimientoService.obtenerPorId(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getEstado()).isEqualTo("PENDIENTE");
+        verify(repository, times(1)).findById(1L);
+    }
+
+
+    @Test
+    @DisplayName("obtenerPorId: debería lanzar EntityNotFoundException cuando el seguimiento no existe")
+    void obtenerPorId_deberiaLanzarExcepcion_cuandoNoExiste() {
+        when(repository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> seguimientoService.obtenerPorId(99L))
+                .isInstanceOf(jakarta.persistence.EntityNotFoundException.class)
+                .hasMessageContaining("Seguimiento no encontrado con id: 99");
+
+        verify(repository, times(1)).findById(99L);
+    }
+
 }

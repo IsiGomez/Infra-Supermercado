@@ -6,7 +6,7 @@ import lombok.*;
 
 @Getter             @Setter
 @AllArgsConstructor @NoArgsConstructor
-@Schema(name = "PuntosRequest", description = "DTO para asignar puntos manualmente a un usuario")
+@Schema(name = "PuntosRequestDto", description = "DTO para asignar puntos manualmente a un usuario")
 public class PuntosRequestDto {
 
     @Schema(description = "Id del usuario que recibe los puntos", example = "2", required = true)

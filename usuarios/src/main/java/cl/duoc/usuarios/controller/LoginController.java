@@ -1,6 +1,7 @@
 package cl.duoc.usuarios.controller;
 
 import cl.duoc.usuarios.assemblers.LoginModelAssembler;
+import cl.duoc.usuarios.config.SecurityUtil;
 import cl.duoc.usuarios.dto.request.LoginRequestDto;
 import cl.duoc.usuarios.dto.response.ExceptionDto;
 import cl.duoc.usuarios.dto.response.LoginAllResponseDto;
@@ -48,7 +49,13 @@ public class LoginController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente",
                          content = @Content(mediaType = "application/json",
-                         schema = @Schema(implementation = LoginCollectionOpenApi.class)))
+                         schema = @Schema(implementation = LoginCollectionOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<LoginAllResponseDto>>> getAll() {
@@ -65,41 +72,68 @@ public class LoginController {
 
 
     @Operation(summary = "Obtener cuenta por ID",
-               description = "Devuelve los datos completos de una cuenta junto con sus enlaces HATEOAS.",
+               description = "Devuelve los datos completos de una cuenta junto con sus enlaces HATEOAS." +
+                             "Un CLIENTE solo puede consultar su propia cuenta; un FUNCIONARIO puede consultar cualquiera.",
                tags = {"Módulo de Cuentas → 1. Consultas de Cuentas"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = LoginHateoasOpenApi.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<LoginAllResponseDto>> getById(
+    public ResponseEntity<?> getById(
             @Parameter(description = "ID de la cuenta", required = true, example = "1")
             @PathVariable Long id) {
+        ResponseEntity<?> forbidden = verificarPropietarioLogin(id);
+        if (forbidden != null) {
+            return forbidden;
+        }
+
         return ResponseEntity.ok(assembler.toModel(loginService.getByIdInfo(id)));
     }
 
 
     @Operation(summary = "Obtener el rol de una cuenta por su ID",
-               description = "Devuelve solamente el rol asociado a la cuenta indicada.",
+               description = "Devuelve solamente el rol asociado a la cuenta indicada." +
+                             "Un CLIENTE solo puede consultar su propia cuenta; un FUNCIONARIO puede consultar cualquiera.",
                tags = {"Módulo de Cuentas → 1. Consultas de Cuentas"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Rol encontrado"),
-            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}/rol")
-    public ResponseEntity<LoginResponseDto> getRolById(
+    public ResponseEntity<?> getRolById(
             @Parameter(description = "ID de la cuenta", required = true, example = "1")
             @PathVariable Long id){
+        ResponseEntity<?> forbidden = verificarPropietarioLogin(id);
+        if (forbidden != null) {
+            return forbidden;
+        }
+
         return ResponseEntity.ok(loginService.getById(id));
     }
 
 
     @Operation(summary = "Crear nueva cuenta",
-               description = "Registra una nueva cuenta de acceso. La contraseña se almacena encriptada con BCrypt.",
+               description = "Registra una nueva cuenta de acceso. La contraseña se almacena encriptada con BCrypt." +
+                             "No requiere token: es el paso final del registro, después de crear la Person.",
                tags = {"Módulo de Cuentas → 2. Acciones de Cuentas"})
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Cuenta creada exitosamente",
@@ -123,13 +157,20 @@ public class LoginController {
 
 
     @Operation(summary = "Actualizar cuenta existente",
-               description = "Actualiza username, password y/o rol de una cuenta existente.",
+               description = "Actualiza username, password y/o rol de una cuenta existente." +
+                             "Un CLIENTE solo puede actualizar su propia cuenta; un FUNCIONARIO puede actualizar cualquiera.",
                tags = {"Módulo de Cuentas → 2. Acciones de Cuentas"})
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Cuenta creada exitosamente",
+            @ApiResponse(responseCode = "200", description = "Cuenta actualizada exitosamente",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = LoginHateoasOpenApi.class))),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "404", description = "Datos no encontrados",
@@ -137,28 +178,47 @@ public class LoginController {
                          schema = @Schema(implementation = ExceptionDto.class))),
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<LoginAllResponseDto>> update(
+    public ResponseEntity<?> update(
             @Parameter(description = "ID de la cuenta a actualizar", required = true, example = "1")
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Datos actualizados de la cuenta", required = true)
             @Valid @RequestBody LoginRequestDto dto
     ) {
+        ResponseEntity<?> forbidden = verificarPropietarioLogin(id);
+        if (forbidden != null) {
+            return forbidden;
+        }
+
         return ResponseEntity.ok(assembler.toModel(loginService.update(id, dto)));
     }
 
 
     @Operation(summary = "Eliminar cuenta por ID",
-               description = "Elimina una cuenta de acceso.",
+               description = "Elimina una cuenta de acceso." +
+                             "Un CLIENTE solo puede eliminar su propia cuenta; un FUNCIONARIO puede eliminar cualquiera.",
                tags = {"Módulo de Cuentas → 2. Acciones de Cuentas"})
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Cuenta eliminada correctamente"),
-            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "No puedes operar sobre la cuenta de otro usuario",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<?> delete(
             @Parameter(description = "ID de la cuenta a eliminar", required = true, example = "1")
             @PathVariable Long id) {
+        ResponseEntity<?> forbidden = verificarPropietarioLogin(id);
+        if (forbidden != null) {
+            return forbidden;
+        }
+
         if (!loginService.delete(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -166,6 +226,22 @@ public class LoginController {
         return ResponseEntity.noContent().build();
     }
 
+
+    private ResponseEntity<?> verificarPropietarioLogin(Long loginId) {
+        if (SecurityUtil.isFuncionario()) {
+            return null;
+        }
+
+        if (!loginService.esPropietario(loginId, SecurityUtil.currentUserId())) {
+            ExceptionDto error = new ExceptionDto(
+                    "Acceso denegado",
+                    "No puedes operar sobre la cuenta de otro usuario.");
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        }
+
+        return null;
+    }
 
 
     class LoginHateoasOpenApi {

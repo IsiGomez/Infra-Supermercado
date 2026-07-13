@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter             @Setter
 @AllArgsConstructor @NoArgsConstructor
-@Schema(name = "ProductRequest", description = "DTO para crear o actualizar un producto del catálogo")
+@Schema(name = "ProductRequestDto", description = "DTO para crear o actualizar un producto del catálogo")
 public class ProductRequestDto {
 
     @Schema(description = "Nombre del producto", example = "Leche Descremada 1L", required = true)

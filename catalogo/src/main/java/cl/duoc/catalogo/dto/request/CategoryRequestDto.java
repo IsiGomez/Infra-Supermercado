@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter             @Setter
 @AllArgsConstructor @NoArgsConstructor
-@Schema(name = "CategoryRequest", description = "DTO para crear o actualizar una categoría del catálogo")
+@Schema(name = "CategoryRequestDto", description = "DTO para crear o actualizar una categoría del catálogo")
 public class CategoryRequestDto {
 
     @Schema(description = "Nombre de la categoría", example = "Lácteos", required = true)

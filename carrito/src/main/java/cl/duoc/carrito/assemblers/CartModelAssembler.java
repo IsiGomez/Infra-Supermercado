@@ -16,10 +16,17 @@ public class CartModelAssembler
     @Override
     public EntityModel<CartResponseDto> toModel(CartResponseDto dto) {
         return EntityModel.of(dto,
-                linkTo(methodOn(CartController.class).getCart(dto.getUserId())).withSelfRel(),
-                linkTo(methodOn(CartController.class).getTotal(dto.getUserId())).withRel("total"),
-                linkTo(methodOn(CartController.class).addItem(dto.getUserId(), null)).withRel("add-item"),
-                linkTo(methodOn(CartController.class).clearCart(dto.getUserId())).withRel("clear")
+                linkTo(methodOn(CartController.class)
+                        .getCart(dto.getUserId())).withSelfRel(),
+
+                linkTo(methodOn(CartController.class)
+                        .getTotal(dto.getUserId())).withRel("total"),
+
+                linkTo(methodOn(CartController.class)
+                        .addItem(dto.getUserId(), null)).withRel("add-item"),
+
+                linkTo(methodOn(CartController.class)
+                        .clearCart(dto.getUserId())).withRel("clear")
         );
     }
 }

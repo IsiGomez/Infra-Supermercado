@@ -2,6 +2,7 @@ package cl.duoc.catalogo.controller;
 
 import cl.duoc.catalogo.assemblers.ProductModelAssembler;
 import cl.duoc.catalogo.dto.request.ProductRequestDto;
+import cl.duoc.catalogo.dto.response.ExceptionDto;
 import cl.duoc.catalogo.dto.response.ProductResponseDto;
 import cl.duoc.catalogo.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,9 +42,15 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Producto encontrado",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductEntityModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ProductResponseDto>> getById(
@@ -58,11 +65,17 @@ public class ProductController {
             tags = {"Módulo de Productos → 1. Consultas de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Productos encontrados",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductCollectionModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Algún producto no fue encontrado", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductCollectionModelDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Algún producto no fue encontrado",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/by-ids")
     public ResponseEntity<CollectionModel<EntityModel<ProductResponseDto>>> getByIds(
@@ -82,10 +95,14 @@ public class ProductController {
             tags = {"Módulo de Productos → 1. Consultas de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductCollectionModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductCollectionModelDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping
     public ResponseEntity<CollectionModel<EntityModel<ProductResponseDto>>> getAll() {
@@ -102,10 +119,14 @@ public class ProductController {
             tags = {"Módulo de Productos → 1. Consultas de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Resultados de búsqueda",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductCollectionModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductCollectionModelDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/search")
     public ResponseEntity<CollectionModel<EntityModel<ProductResponseDto>>> getByName(
@@ -124,11 +145,17 @@ public class ProductController {
             tags = {"Módulo de Productos → 1. Consultas de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Productos encontrados",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductCollectionModelDto.class))),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductCollectionModelDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<CollectionModel<EntityModel<ProductResponseDto>>> getByCategoryId(
@@ -147,12 +174,20 @@ public class ProductController {
             tags = {"Módulo de Productos → 1. Consultas de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Productos encontrados",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductCollectionModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "Rango de precios inválido", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductCollectionModelDto.class))),
+            @ApiResponse(responseCode = "400", description = "Rango de precios inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Sin permisos para este recurso",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @GetMapping("/category/{categoryId}/price")
     public ResponseEntity<CollectionModel<EntityModel<ProductResponseDto>>> getByCategoryIdAndPriceBetween(
@@ -178,11 +213,17 @@ public class ProductController {
             tags = {"Módulo de Productos → 2. Acciones de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Producto creado exitosamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductEntityModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductEntityModelDto.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping
     public ResponseEntity<EntityModel<ProductResponseDto>> create(
@@ -198,12 +239,20 @@ public class ProductController {
             tags = {"Módulo de Productos → 2. Acciones de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductEntityModelDto.class))),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content)
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ProductEntityModelDto.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<ProductResponseDto>> update(
@@ -222,9 +271,15 @@ public class ProductController {
             tags = {"Módulo de Productos → 2. Acciones de Productos"})
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Producto eliminado correctamente"),
-            @ApiResponse(responseCode = "401", description = "Token ausente o inválido", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content)
+            @ApiResponse(responseCode = "401", description = "Token ausente o inválido",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado: se requiere rol FUNCIONARIO",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado",
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -242,10 +297,10 @@ public class ProductController {
         @Schema(
                 description = "Enlaces HATEOAS individuales para el producto",
                 example = "{\n" +
-                        "  \"self\": { \"href\": \"http://localhost:8081/api/v1/products/1\" },\n" +
-                        "  \"products\": { \"href\": \"http://localhost:8081/api/v1/products\" },\n" +
-                        "  \"update\": { \"href\": \"http://localhost:8081/api/v1/products/1\" },\n" +
-                        "  \"delete\": { \"href\": \"http://localhost:8081/api/v1/products/1\" }\n" +
+                        "  \"self\": { \"href\": \"http://localhost:8082/api/v1/products/1\" },\n" +
+                        "  \"products\": { \"href\": \"http://localhost:8082/api/v1/products\" },\n" +
+                        "  \"update\": { \"href\": \"http://localhost:8082/api/v1/products/1\" },\n" +
+                        "  \"delete\": { \"href\": \"http://localhost:8082/api/v1/products/1\" }\n" +
                         "}"
         )
 
@@ -273,8 +328,9 @@ public class ProductController {
 
         @Schema(
                 description = "Enlaces HATEOAS de la colección de productos",
-                example = "{\"self\":{\"href\":\"http://localhost:8081/api/v1/products\"}}"
+                example = "{\"self\":{\"href\":\"http://localhost:8082/api/v1/products\"}}"
         )
+
         public Object _links;
 
         public static class EmbeddedData {

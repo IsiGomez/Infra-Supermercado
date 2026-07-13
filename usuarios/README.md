@@ -1,6 +1,8 @@
 # Microservicio de Usuarios
 
-Microservicio encargado de la gestión de personas, cuentas de acceso y roles del sistema de supermercado. Permite crear, consultar, actualizar y eliminar personas y cuentas, con validaciones como RUT único, email único, username único y asociación correcta entre persona y rol.
+Microservicio encargado de la gestión de personas, cuentas de acceso y roles del sistema de supermercado. 
+Permite crear, consultar, actualizar y eliminar personas y cuentas, con validaciones como RUT único, email único, username único y asociación correcta entre persona y rol.
+Además es el único que emite tokens JWT para la autenticación.
 
 ---
 
@@ -30,13 +32,22 @@ http://localhost:8080/
 ## Herramientas
 
 - Java 25 · Spring Boot 4.0.6
-- Spring Security + JWT
+- Spring Security + JWT (BCrypt para el hash de contraseñas)
 - Spring Data JPA + Flyway
 - Spring Cloud Eureka Client
+- Spring HATEOAS
 - Springdoc OpenAPI (Swagger UI)
 - Docker
 
 ---
+
+## Flujo de alta de un usuario
+
+1. `POST /api/v1/persons` — crea los datos personales (rut, nombre, email, teléfono). **Público.**
+2. `POST /api/v1/logins` — crea la cuenta de acceso (username, password), asociada a la persona creada y a un `Rol` (`CLIENTE` o `FUNCIONARIO`). **Público.**
+3. `POST /api/v1/auth` — autentica con username/password y devuelve el JWT. **Público.**
+
+Los 3 pasos son necesariamente públicos: sin ellos nadie podría registrarse ni obtener su primer token
 
 ---
 
@@ -44,9 +55,9 @@ http://localhost:8080/
 
 ### Autenticación — `/api/v1/auth`
 
-| Método | Ruta           | Descripción                |
-|--------|----------------|----------------------------|
-| POST   | `/api/v1/auth` | Autenticarse y obtener JWT |
+| Método | Ruta              | Descripción                  | Acceso   |
+|--------|-------------------|------------------------------|----------|
+| POST   | `/api/v1/auth`    | Autenticarse y obtener JWT   | Público  |
 
 **Body de ejemplo:**
 ```json
@@ -69,13 +80,13 @@ http://localhost:8080/
 
 ### Personas — `/api/v1/persons`
 
-| Método | Ruta                   | Descripción                  |
-|--------|------------------------|------------------------------|
-| GET    | `/api/v1/persons`      | Obtener todas las personas   | 
-| GET    | `/api/v1/persons/{id}` | Obtener persona por ID       | 
-| POST   | `/api/v1/persons`      | Crear nueva persona          |
-| PUT    | `/api/v1/persons/{id}` | Actualizar persona existente | 
-| DELETE | `/api/v1/persons/{id}` | Eliminar persona por ID      |
+| Método | Ruta                   | Descripción                             | Rol requerido          |
+|--------|------------------------|-----------------------------------------|------------------------|
+| POST   | `/api/v1/persons`      | Crear información de persona (registro) | Público                |
+| GET    | `/api/v1/persons`      | Listar todas las personas               | FUNCIONARIO            |
+| GET    | `/api/v1/persons/{id}` | Obtener persona por id                  | FUNCIONARIO o CLIENTE  |
+| PUT    | `/api/v1/persons/{id}` | Actualizar persona existente            | FUNCIONARIO o CLIENTE  |
+| DELETE | `/api/v1/persons/{id}` | Eliminar información de persona         | FUNCIONARIO o CLIENTE  |
 
 **Validaciones:**
 - RUT único en el sistema
@@ -85,14 +96,14 @@ http://localhost:8080/
 
 ### Cuentas — `/api/v1/logins`
 
-| Método | Ruta                      | Descripción                  |
-|--------|---------------------------|------------------------------|
-| GET    | `/api/v1/logins`          | Obtener todas las cuentas    |
-| GET    | `/api/v1/logins/{id}`     | Obtener cuenta por ID        |
-| GET    | `/api/v1/logins/{id}/rol` | Obtener el rol de una cuenta |
-| POST   | `/api/v1/logins`          | Crear nueva cuenta           |
-| PUT    | `/api/v1/logins/{id}`     | Actualizar cuenta existente  |
-| DELETE | `/api/v1/logins/{id}`     | Eliminar cuenta por ID       |
+| Método | Ruta                      | Descripción                    | Rol requerido          |
+|--------|---------------------------|--------------------------------|------------------------|
+| POST   | `/api/v1/logins`          | Crear nueva cuenta (registro)  | Público                |
+| GET    | `/api/v1/logins`          | Listar todas las cuentas       | FUNCIONARIO            |
+| GET    | `/api/v1/logins/{id}`     | Obtener cuenta por id          | FUNCIONARIO o CLIENTE  |
+| GET    | `/api/v1/logins/{id}/rol` | Obtener el rol de una cuenta   | FUNCIONARIO o CLIENTE  |
+| PUT    | `/api/v1/logins/{id}`     | Actualizar cuenta existente    | FUNCIONARIO o CLIENTE  |
+| DELETE | `/api/v1/logins/{id}`     | Eliminar cuenta                | FUNCIONARIO o CLIENTE  |
 
 **Validaciones:**
 - Username único en el sistema
@@ -102,10 +113,10 @@ http://localhost:8080/
 
 ### Roles — `/api/v1/roles`
 
-| Método | Ruta                 | Descripción             |
-|--------|----------------------|-------------------------|
-| GET    | `/api/v1/roles`      | Obtener todos los roles |
-| GET    | `/api/v1/roles/{id}` | Obtener rol por ID      |
+| Método | Ruta                 | Descripción             | Acceso   |
+|--------|----------------------|-------------------------|----------|
+| GET    | `/api/v1/roles`      | Obtener todos los roles | Público  |
+| GET    | `/api/v1/roles/{id}` | Obtener rol por ID      | Público  |
 
 **Roles disponibles (preinsertados):**
 
@@ -116,12 +127,20 @@ http://localhost:8080/
 
 ---
 
+## JWT
+
+- El token usa un secreto compartido (`app.jwt.secret`), el mismo que usa `api-gateway` para poder validar el token sin llamar de vuelta a `usuarios`.
+- El claim principal es el `id` de la persona (`Long`), recuperable en cualquier microservicio con `SecurityUtil.currentUserId()`.
+- El rol viaja como authority `ROLE_CLIENTE` o `ROLE_FUNCIONARIO`.
+
+---
+
 ## Modelo de base de datos
 
 ```
 rol
 ├── id           (PK)
-├── name         (unique)
+├── name         (unique) (CLIENTE | FUNCIONARIO)
 └── description
 
 person
@@ -135,7 +154,7 @@ person
 login
 ├── id          (PK)
 ├── username    (unique)
-├── password    (bcrypt)
+├── password    (BCrypt)
 ├── person_id   (FK → person, unique)
 └── rol_id      (FK → rol)
 ```
@@ -146,11 +165,13 @@ login
 
 Los tests cubren la capa de servicio con JUnit 5 + Mockito:
 
-| Clase de test    | Métodos cubiertos                                                        |
-|------------------|--------------------------------------------------------------------------|
-| `PersonImplTest` | getById, getAll, create (rut único, email único), update, delete         |
-| `LoginImplTest`  | getById, getAll, create (username único, persona ya tiene login), delete |
-| `RolImplTest`    | getById (existe / no existe), getAll (con datos / vacío)                 |
+| Clase de test       | Métodos cubiertos                           |
+|---------------------|---------------------------------------------|
+| `PersonImplTest`    | CRUD completo de personas                   |
+| `LoginImplTest`     | CRUD de cuentas, obtención de rol asociado  |
+| `RolImplTest`       | Listado y obtención de roles                |
+| `AuthImplTest`      | Login exitoso, credenciales incorrectas     |
+| `JwtServiceTest`    | Generación y validación de tokens           |
 
 ---
 

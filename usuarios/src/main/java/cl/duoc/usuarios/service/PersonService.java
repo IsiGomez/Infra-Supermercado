@@ -13,4 +13,6 @@ public interface PersonService {
     PersonResponseDto update(Long id, PersonRequestDto dto);
     boolean delete(Long id);
 
+    boolean esPropietario(Long personId, Long personIdToken);
+
 }

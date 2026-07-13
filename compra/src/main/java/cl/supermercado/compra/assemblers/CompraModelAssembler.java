@@ -20,22 +20,22 @@ public class CompraModelAssembler
 
     @Override
     public EntityModel<CompraResponseDto> toModel(CompraResponseDto dto) {
-
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(CompraController.class).listarComprasPorUsuario(dto.getUsuarioId()))
-                .withSelfRel());
-
-        if (SecurityUtil.isCliente()) {
-            links.add(linkTo(methodOn(CompraController.class).listarComprasPorUsuario(dto.getUsuarioId()))
-                    .withRel("historial-usuario"));
-            links.add(linkTo(methodOn(CompraController.class).crearCompra(null))
-                    .withRel("crear-compra"));
-        }
+        links.add(linkTo(methodOn(CompraController.class)
+                .obtenerPorId(dto.getId())).withSelfRel());
 
         if (SecurityUtil.isFuncionario()) {
-            links.add(linkTo(methodOn(CompraController.class).listarCompras())
-                    .withRel("compras"));
+            links.add(linkTo(methodOn(CompraController.class)
+                    .listarCompras()).withRel("compras"));
+        } else {
+            links.add(linkTo(methodOn(CompraController.class)
+                    .listarComprasPorUsuario(dto.getUsuarioId())).withRel("historial-usuario"));
+        }
+
+        if (SecurityUtil.isCliente()) {
+            links.add(linkTo(methodOn(CompraController.class)
+                    .crearCompra(null)).withRel("crear-compra"));
         }
 
         return EntityModel.of(dto, links);

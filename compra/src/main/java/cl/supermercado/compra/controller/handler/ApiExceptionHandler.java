@@ -2,6 +2,9 @@ package cl.supermercado.compra.controller.handler;
 
 
 import cl.supermercado.compra.dto.response.ExceptionDto;
+import cl.supermercado.compra.exception.RecursoRemotoNoEncontradoException;
+import cl.supermercado.compra.exception.ServicioRemotoException;
+import feign.RetryableException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -50,7 +53,35 @@ public class ApiExceptionHandler {
         ExceptionDto error = new ExceptionDto("Ocurrio un error", ex.getMessage());
 
         log.error(ex.getMessage(), ex);
-        return ResponseEntity.badRequest().body(error);
+        return ResponseEntity.internalServerError().body(error);
+    }
+
+    @ExceptionHandler(RetryableException.class)
+    public ResponseEntity<ExceptionDto> handleRetryableException(RetryableException ex) {
+        ExceptionDto error = new ExceptionDto(
+                "Error comunicando con otra API",
+                "Una de las APIs necesarias no esta disponible. Intenta nuevamente mas tarde."
+        );
+
+        log.error(ex.getMessage());
+        return ResponseEntity.internalServerError().body(error);
+    }
+
+    @ExceptionHandler(RecursoRemotoNoEncontradoException.class)
+    public ResponseEntity<ExceptionDto> handleRecursoRemotoNoEncontradoException(RecursoRemotoNoEncontradoException ex) {
+        ExceptionDto error = new ExceptionDto("Recurso no encontrado en servicio externo", ex.getMessage());
+
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ServicioRemotoException.class)
+    public ResponseEntity<ExceptionDto> handleServicioRemotoException(ServicioRemotoException ex) {
+        ExceptionDto error = new ExceptionDto("Error de comunicacion con servicio externo", ex.getMessage());
+        HttpStatus status = ex.getStatus() >= 500 ? HttpStatus.SERVICE_UNAVAILABLE : HttpStatus.BAD_GATEWAY;
+
+        log.error(ex.getMessage());
+        return ResponseEntity.status(status).body(error);
     }
 
 }

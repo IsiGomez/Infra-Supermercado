@@ -18,6 +18,7 @@ import cl.duoc.carrito.service.apis.PuntosClient;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +86,7 @@ public class CartImpl implements CartService {
                             newItem.setQuantity(request.getQuantity());
                             newItem.calcularSubtotal(product.getPrice());
                             cartItemRepository.save(newItem);
+                            cart.getItems().add(newItem);
                             log.info("Nuevo item agregado: producto '{}', cantidad: {}", product.getName(), request.getQuantity());
                         }
                 );
@@ -268,7 +270,9 @@ public class CartImpl implements CartService {
                 ids.size(), cart.getId());
 
         return catalogoClient.getProductsByIds(ids)
+                .getContent()
                 .stream()
+                .map(EntityModel::getContent)
                 .collect(Collectors.toMap(ProductDto::getId, Function.identity()));
     }
 

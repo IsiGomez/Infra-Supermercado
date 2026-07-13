@@ -1,0 +1,17 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
+app:
+  jwt:
+    secret: VGhpcy1Jcy1BLVZlcnktU2VjdXJlLVNlY3JldC1LZXktRm9yLUpXVC1BcGktQXV0aGVudGljYXRpb24=
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web.servlet.function: TRACE
+    org.springframework.cloud.gateway.server.mvc: TRACE
+    org.springframework.cloud.gateway.server.webmvc: TRACE

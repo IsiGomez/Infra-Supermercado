@@ -9,5 +9,6 @@ public interface PagoService {
     List<PagoResponseDto> listarPagos();
     Boolean tieneUltimoPagoExitoso(Long usuarioId);
     PagoResponseDto obtenerUltimoPagoExitoso(Long usuarioId);
+    PagoResponseDto obtenerPorId(Long id);
 
 }

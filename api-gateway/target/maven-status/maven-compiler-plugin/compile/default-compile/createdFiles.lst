@@ -1,0 +1,3 @@
+cl\supermercado\gateway\ApiGatewayApplication.class
+cl\supermercado\gateway\config\GatewayConfig.class
+cl\supermercado\gateway\filter\JwtWebMvcFilter.class

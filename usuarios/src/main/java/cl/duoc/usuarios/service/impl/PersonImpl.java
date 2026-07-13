@@ -54,6 +54,7 @@ public class PersonImpl implements PersonService {
     public PersonResponseDto update(Long id, PersonRequestDto dto) {
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Persona no encontrada con id: " + id));
+
         if (personRepository.existsByRutIgnoreCaseAndIdNot(dto.getRut(), id)) {
             throw new IllegalArgumentException("Ya existe una persona con el rut: " + dto.getRut());
         }
@@ -78,6 +79,11 @@ public class PersonImpl implements PersonService {
 
         personRepository.deleteById(id);
         return true;
+    }
+
+    @Override
+    public boolean esPropietario(Long personId, Long personIdToken) {
+        return personId != null && personId.equals(personIdToken);
     }
 
 }

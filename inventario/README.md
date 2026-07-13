@@ -1,6 +1,8 @@
 # Microservicio de Inventario
 
-Microservicio encargado de la gestión del stock de productos del sistema de supermercado. Permite consultar y actualizar la cantidad disponible de cada producto en inventario, con validaciones como stock no negativo y límite máximo por producto. Se comunica con el microservicio de catálogo para enriquecer las respuestas con datos del producto, y consume eventos Kafka para descontar stock automáticamente al completarse una compra.
+Microservicio encargado de la gestión del stock de productos del sistema de supermercado. 
+Permite consultar y actualizar la cantidad disponible de cada producto en inventario, con validaciones como stock no negativo y límite máximo por producto.
+Se comunica con el microservicio de `catalogo` para enriquecer las respuestas con datos del producto, y consume eventos Kafka para descontar stock automáticamente al completarse una compra.
 
 ---
 
@@ -32,8 +34,10 @@ http://localhost:8080/
 - Java 25 · Spring Boot 4.0.6
 - Spring Security + JWT
 - Spring Data JPA + Flyway
-- Spring Cloud Eureka Client + OpenFeign
+- Spring Cloud Eureka Client 
+- Spring Cloud OpenFeign (comunicación síncrona con `catalogo`)
 - Apache Kafka (consumidor)
+- Spring HATEOAS
 - Springdoc OpenAPI (Swagger UI)
 - Docker
 
@@ -65,12 +69,12 @@ Al consultar o actualizar stock, se llama al catálogo para obtener el nombre y 
 |------------------|---------------------------------|-----------------------------------|
 | `catalogo`       | `GET /api/v1/products/{id}`     | Obtener datos del producto        |
 
-### Kafka Consumer — topic `compra-completada`
+### Kafka Consumer — `compra-completada`
 Al completarse una compra, el inventario descuenta automáticamente el stock de cada producto comprado.
 
-| Topic              | Grupo              | Acción                                      |
-|--------------------|--------------------|---------------------------------------------|
-| `compra-completada`| `inventario-group` | Descuenta la cantidad comprada por producto |
+| Topic               | Grupo              | Acción                                      |
+|---------------------|--------------------|---------------------------------------------|
+| `compra-completada` | `inventario-group` | Descuenta la cantidad comprada por producto |
 
 ---
 

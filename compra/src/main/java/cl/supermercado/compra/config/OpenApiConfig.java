@@ -34,7 +34,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public GroupedOpenApi categoriesApi() {
+    public GroupedOpenApi comprasApi() {
         return GroupedOpenApi.builder()
                 .group("1. Módulo de compras")
                 .pathsToMatch("/api/v1/compras/**")

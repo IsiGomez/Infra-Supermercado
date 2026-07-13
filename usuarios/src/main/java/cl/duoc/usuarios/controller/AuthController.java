@@ -5,6 +5,7 @@ import cl.duoc.usuarios.dto.response.AuthResponseDto;
 import cl.duoc.usuarios.dto.response.ExceptionDto;
 import cl.duoc.usuarios.model.Login;
 import cl.duoc.usuarios.repository.LoginRepository;
+import cl.duoc.usuarios.service.AuthService;
 import cl.duoc.usuarios.service.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,9 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Módulo de Autenticación", description = "Operación para obtener token de autenticacion")
 public class AuthController {
 
-    private final LoginRepository loginRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final AuthService authService;
 
     @Operation(summary = "Autenticarse y obtener JWT",
                description = "De ingresar correctamente el login, se devuelve un token de autenticación.")
@@ -43,23 +42,12 @@ public class AuthController {
                          content = @Content(mediaType = "application/json",
                          schema = @Schema(implementation = ExceptionDto.class))),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos - Error de validación",
-                    content = @Content(mediaType = "application/json",
-                                       schema = @Schema(implementation = ExceptionDto.class)))
+                         content = @Content(mediaType = "application/json",
+                         schema = @Schema(implementation = ExceptionDto.class)))
     })
     @PostMapping
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDto req) {
-        Login login = loginRepository.findByUsernameIgnoreCase(req.getUsername())
-                .orElse(null);
-
-        if (login == null || !passwordEncoder.matches(req.getPassword(), login.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(java.util.Map.of("error", "Credenciales incorrectas"));
-        }
-
-        String token = jwtService.generateToken(login);
-        String rolName = login.getRol() != null ? login.getRol().getName() : "CLIENTE";
-
-        return ResponseEntity.ok(new AuthResponseDto(token, login.getUsername(), rolName));
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto req) {
+        return ResponseEntity.ok(authService.login(req));
     }
 
 }

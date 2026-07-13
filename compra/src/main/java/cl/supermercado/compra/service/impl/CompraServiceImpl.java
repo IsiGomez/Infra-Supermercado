@@ -11,6 +11,7 @@ import cl.supermercado.compra.repository.CompraRepository;
 import cl.supermercado.compra.service.CompraService;
 import cl.supermercado.compra.service.api.CarritoClient;
 import cl.supermercado.compra.service.api.PagoClient;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -93,6 +94,16 @@ public class CompraServiceImpl implements CompraService {
     @Transactional(readOnly = true)
     public List<CompraResponseDto> listarComprasPorUsuario(Long usuarioId) {
         return repository.findByUsuarioId(usuarioId).stream().map(mapper::toDto).toList();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public CompraResponseDto obtenerPorId(Long id) {
+        Compra compra = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe una compra con id " + id));
+        return mapper.toDto(compra);
     }
 
 }

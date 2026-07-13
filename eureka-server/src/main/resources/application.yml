@@ -6,11 +6,11 @@ spring:
   application:
     name: eureka-server
 
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
 
 eureka:
-  instance:
-    hostname: localhost
-
   client:
     register-with-eureka: false
     fetch-registry: false

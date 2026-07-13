@@ -1,6 +1,8 @@
 package cl.duoc.carrito.controller.handler;
 
 import cl.duoc.carrito.dto.response.ExceptionDto;
+import cl.duoc.carrito.exception.RecursoRemotoNoEncontradoException;
+import cl.duoc.carrito.exception.ServicioRemotoException;
 import feign.RetryableException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,25 @@ public class ApiExceptionHandler {
 
         log.error(ex.getMessage());
         return ResponseEntity.internalServerError().body(error);
+    }
+
+
+    @ExceptionHandler(RecursoRemotoNoEncontradoException.class)
+    public ResponseEntity<ExceptionDto> handleRecursoRemotoNoEncontradoException(RecursoRemotoNoEncontradoException ex) {
+        ExceptionDto error = new ExceptionDto("Recurso no encontrado en servicio externo", ex.getMessage());
+
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+
+    @ExceptionHandler(ServicioRemotoException.class)
+    public ResponseEntity<ExceptionDto> handleServicioRemotoException(ServicioRemotoException ex) {
+        ExceptionDto error = new ExceptionDto("Error de comunicacion con servicio externo", ex.getMessage());
+        HttpStatus status = ex.getStatus() >= 500 ? HttpStatus.SERVICE_UNAVAILABLE : HttpStatus.BAD_GATEWAY;
+
+        log.error(ex.getMessage());
+        return ResponseEntity.status(status).body(error);
     }
 
 

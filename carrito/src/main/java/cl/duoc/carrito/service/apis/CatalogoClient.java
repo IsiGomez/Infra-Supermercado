@@ -2,6 +2,8 @@ package cl.duoc.carrito.service.apis;
 
 import cl.duoc.carrito.dto.remote.ProductDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,6 @@ public interface CatalogoClient {
     ProductDto getProductById(@PathVariable Long id);
 
     @GetMapping("/api/v1/products/by-ids")
-    List<ProductDto> getProductsByIds(@RequestParam List<Long> ids);
+    CollectionModel<EntityModel<ProductDto>> getProductsByIds(@RequestParam List<Long> ids);
 
 }
