@@ -1,6 +1,9 @@
 # Microservicio de Catálogo
 
-Microservicio encargado de la gestión de productos y categorías del sistema de supermercado. Permite crear, consultar, actualizar y eliminar productos y categorías, con validaciones como nombre único, precio dentro de rango válido y categoría existente al asociar un producto.
+Microservicio encargado de la gestión de productos y categorías del sistema de supermercado. 
+Permite crear, consultar, actualizar y eliminar productos y categorías, con validaciones como nombre único, precio dentro de rango válido y categoría existente al asociar un producto.
+
+Es consultado vía Feign por `carrito` (para obtener datos del producto al agregarlo) e `inventario` (para validar que un producto exista antes de actualizar su stock).
 
 ---
 
@@ -33,6 +36,7 @@ http://localhost:8080/
 - Spring Security + JWT
 - Spring Data JPA + Flyway
 - Spring Cloud Eureka Client
+- Spring HATEOAS
 - Springdoc OpenAPI (Swagger UI)
 - Docker
 
@@ -42,14 +46,15 @@ http://localhost:8080/
 
 ### Categorías — `/api/v1/categories`
 
-| Método | Ruta                       | Descripción                      |
-|--------|----------------------------|----------------------------------|
-| GET    | `/api/v1/categories`       | Obtener todas las categorías     |
-| GET    | `/api/v1/categories/{id}`  | Obtener categoría por ID         |
-| POST   | `/api/v1/categories`       | Crear nueva categoría            |
-| PUT    | `/api/v1/categories/{id}`  | Actualizar categoría existente   |
-| DELETE | `/api/v1/categories/{id}`  | Eliminar categoría por ID        |
+| Método | Ruta                        | Descripción                    | Rol requerido          |
+|--------|-----------------------------|--------------------------------|------------------------|
+| GET    | `/api/v1/categories/{id}`   | Obtener categoría por ID       | FUNCIONARIO o CLIENTE  |
+| GET    | `/api/v1/categories`        | Obtener todas las categorías   | FUNCIONARIO o CLIENTE  |
+| POST   | `/api/v1/categories`        | Crear nueva categoría          | FUNCIONARIO            |
+| PUT    | `/api/v1/categories/{id}`   | Actualizar categoría existente | FUNCIONARIO            |
+| DELETE | `/api/v1/categories/{id}`   | Eliminar categoría por ID      | FUNCIONARIO            |
 
+> Regla general de seguridad: cualquier lectura (`GET`) está disponible para ambos roles; cualquier escritura (`POST`/`PUT`/`DELETE`) requiere `FUNCIONARIO`.
 
 **Validaciones:**
 - Nombre único en el sistema (insensible a mayúsculas)
@@ -59,18 +64,17 @@ http://localhost:8080/
 
 ### Productos — `/api/v1/products`
 
-| Método | Ruta                                              | Descripción                               |
-|--------|---------------------------------------------------|-------------------------------------------|
-| GET    | `/api/v1/products`                                | Obtener todos los productos               |
-| GET    | `/api/v1/products/{id}`                           | Obtener producto por ID                   |
-| GET    | `/api/v1/products/by-ids`                         | Obtener productos por lista de IDs        |
-| GET    | `/api/v1/products/search`                         | Buscar productos por nombre               |
-| GET    | `/api/v1/products/category/{categoryId}`          | Obtener productos por categoría           |
-| GET    | `/api/v1/products/category/{categoryId}/price`    | Filtrar por categoría y rango de precio   |
-| POST   | `/api/v1/products`                                | Crear nuevo producto                      |
-| PUT    | `/api/v1/products/{id}`                           | Actualizar producto existente             |
-| DELETE | `/api/v1/products/{id}`                           | Eliminar producto por ID                  |
-
+| Método | Ruta                                           | Descripción                             | Rol requerido         |
+|--------|------------------------------------------------|-----------------------------------------|-----------------------|
+| GET    | `/api/v1/products/{id}`                        | Obtener producto por ID                 | FUNCIONARIO o CLIENTE |
+| GET    | `/api/v1/products/by-ids`                      | Obtener productos por lista de IDs      | FUNCIONARIO o CLIENTE |
+| GET    | `/api/v1/products`                             | Obtener todos los productos             | FUNCIONARIO o CLIENTE |
+| GET    | `/api/v1/products/search`                      | Buscar productos por nombre             | FUNCIONARIO o CLIENTE |
+| GET    | `/api/v1/products/category/{categoryId}`       | Obtener productos por categoría         | FUNCIONARIO o CLIENTE |
+| GET    | `/api/v1/products/category/{categoryId}/price` | Filtrar por categoría y rango de precio | FUNCIONARIO o CLIENTE |
+| POST   | `/api/v1/products`                             | Crear nuevo producto                    | FUNCIONARIO           |
+| PUT    | `/api/v1/products/{id}`                        | Actualizar producto existente           | FUNCIONARIO           |
+| DELETE | `/api/v1/products/{id}`                        | Eliminar producto por ID                | FUNCIONARIO           |
 
 **Validaciones:**
 - Nombre único en el sistema (insensible a mayúsculas)
@@ -103,10 +107,10 @@ product
 
 Los tests cubren la capa de servicio con JUnit 5 + Mockito:
 
-| Clase de test       | Métodos cubiertos                                                                                                          |
-|---------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `CategoryImplTest`  | getById (existe / no existe), getAll (con datos / vacío), create (nombre único / duplicado), update (válido / no existe / nombre duplicado) |
-| `ProductImplTest`   | getById, getByIds (todos existen / falta alguno), getByCategoryId, getByCategoryIdAndPriceBetween (min > max / precio negativo), create (nombre único / duplicado) |
+| Clase de test       | Métodos cubiertos                                             |
+|---------------------|---------------------------------------------------------------|
+| `ProductImplTest`   | CRUD, búsqueda por nombre, por categoría, por rango de precio |
+| `CategoryImplTest`  | CRUD de categorías                                            |
 
 ---
 
