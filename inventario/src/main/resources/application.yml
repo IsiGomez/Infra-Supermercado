@@ -37,6 +37,9 @@ spring:
           json:
             trusted:
               packages: "*"
+            use:
+              type:
+                headers: false
             value:
               default:
                 type: cl.duoc.inventario.event.CompraCompletadaEvent

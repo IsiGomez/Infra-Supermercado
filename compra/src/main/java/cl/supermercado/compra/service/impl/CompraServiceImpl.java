@@ -76,7 +76,18 @@ public class CompraServiceImpl implements CompraService {
                 compra.getFechaCompra(),
                 items
         );
-        kafkaTemplate.send("compra-completada", String.valueOf(compra.getUsuarioId()), evento);
+        kafkaTemplate.send("compra-completada", String.valueOf(compra.getUsuarioId()), evento)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Fallo al enviar evento 'compra-completada' para compra {}: {}",
+                                compra.getId(), ex.getMessage(), ex);
+                    } else {
+                        log.info("Evento 'compra-completada' confirmado por Kafka para compra {} (partition={}, offset={})",
+                                compra.getId(),
+                                result.getRecordMetadata().partition(),
+                                result.getRecordMetadata().offset());
+                    }
+                });;
         log.info("Evento 'compra-completada' enviado para compra {}", compra.getId());
 
         return mapper.toDto(compra);
