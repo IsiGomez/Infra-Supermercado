@@ -129,8 +129,3 @@ spring:
                 - Path=/api/v1/puntos/**
               filters:
                 - jwtFilter
-
-
-eureka:
-  instance:
-    prefer-ip-address: true

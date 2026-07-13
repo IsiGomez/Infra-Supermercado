@@ -27,10 +27,5 @@ spring:
     baseline-on-migrate: true
 
 
-eureka:
-  instance:
-    prefer-ip-address: true
-
-
 jwt:
   expiration: 86400000

@@ -40,8 +40,3 @@ spring:
             value:
               default:
                 type: cl.supermercado.puntos.event.CompraCompletadaEvent
-
-
-eureka:
-  instance:
-    prefer-ip-address: true
