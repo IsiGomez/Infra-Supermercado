@@ -36,3 +36,8 @@ spring:
             add:
               type:
                 headers: false
+
+
+eureka:
+  instance:
+    prefer-ip-address: true

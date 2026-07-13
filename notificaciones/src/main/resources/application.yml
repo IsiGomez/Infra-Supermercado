@@ -40,3 +40,8 @@ spring:
             value:
               default:
                 type: cl.supermercado.notificaciones.event.CompraCompletadaEvent
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
