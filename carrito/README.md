@@ -1,6 +1,8 @@
 # Microservicio de Carrito
 
-Microservicio encargado de la gestión del carrito de compras del sistema de supermercado. Permite agregar, actualizar y eliminar productos del carrito, aplicar promociones mediante código, y canjear puntos de fidelización como descuento. Se comunica con otros microservicios (catálogo, inventario, promociones y puntos) a través de Feign.
+Microservicio encargado de la gestión del carrito de compras del sistema de supermercado.
+Permite agregar/actualizar/quitar productos del carrito (validando stock contra `inventario` y datos contra `catalogo`), 
+aplicar promociones (`promociones`) y canjear puntos de fidelización como descuento (`puntos`).
 
 ---
 
@@ -32,7 +34,9 @@ http://localhost:8080/
 - Java 25 · Spring Boot 4.0.6
 - Spring Security + JWT
 - Spring Data JPA + Flyway
-- Spring Cloud Eureka Client + OpenFeign
+- Spring Cloud Eureka Client 
+- Spring Cloud OpenFeign (comunicación síncrona con `inventario`, `catalogo`, `puntos` y `promociones`)
+- Spring HATEOAS
 - Springdoc OpenAPI (Swagger UI)
 - Docker
 
@@ -42,18 +46,20 @@ http://localhost:8080/
 
 ### Carrito — `/api/v1/carts`
 
-| Método | Ruta                                        | Descripción                                      |
-|--------|---------------------------------------------|--------------------------------------------------|
-| GET    | `/api/v1/carts/user/{userId}`               | Obtener el carrito completo del usuario          |
-| GET    | `/api/v1/carts/user/{userId}/total`         | Obtener el total actual del carrito              |
-| POST   | `/api/v1/carts/user/{userId}/item`          | Agregar un producto al carrito                   |
-| PATCH  | `/api/v1/carts/user/{userId}/item/{productId}` | Actualizar la cantidad de un producto         |
-| DELETE | `/api/v1/carts/user/{userId}/item/{productId}` | Eliminar un producto del carrito             |
-| DELETE | `/api/v1/carts/user/{userId}/clear`         | Vaciar el carrito completo                       |
-| POST   | `/api/v1/carts/user/{userId}/promocion`     | Aplicar una promoción por código                 |
-| GET    | `/api/v1/carts/user/{userId}/canje/simular` | Simular canje de puntos (paso 1 de 2)            |
-| POST   | `/api/v1/carts/user/{userId}/canje/confirmar` | Confirmar canje de puntos (paso 2 de 2)        |
+Todas las rutas de este servicio requieren rol `CLIENTE` — no hay operaciones para `FUNCIONARIO` 
+(el carrito es siempre el de quien está autenticado, verificado contra el `userId` del token).
 
+| Método | Ruta                                           | Descripción                                        |
+|--------|------------------------------------------------|----------------------------------------------------|
+| GET    | `/api/v1/carts/user/{userId}/total`            | Obtener el total actual del carrito                |
+| GET    | `/api/v1/carts/user/{userId}`                  | Obtener el carrito completo del usuario            |
+| POST   | `/api/v1/carts/user/{userId}/item`             | Agregar un producto al carrito                     |
+| PATCH  | `/api/v1/carts/user/{userId}/item/{productId}` | Actualizar la cantidad de un producto ya existente |
+| DELETE | `/api/v1/carts/user/{userId}/item/{productId}` | Eliminar un producto del carrito                   |
+| DELETE | `/api/v1/carts/user/{userId}/clear`            | Vaciar el carrito completo                         |
+| POST   | `/api/v1/carts/user/{userId}/promocion`        | Aplicar una promoción por código                   |
+| GET    | `/api/v1/carts/user/{userId}/canje/simular`    | Simular canje de puntos (paso 1 de 2)              |
+| POST   | `/api/v1/carts/user/{userId}/canje/confirmar`  | Confirmar canje de puntos (paso 2 de 2)            |
 
 **Validaciones:**
 - Solo el propio usuario puede operar sobre su carrito (validación por JWT)
@@ -64,13 +70,20 @@ http://localhost:8080/
 
 ---
 
+## Flujo de canje de puntos (2 pasos)
+
+1. **Simular** (`GET .../canje/simular`): consulta a `puntos` cuántos puntos tiene el usuario y calcula el descuento equivalente, sin aplicar nada todavía.
+2. **Confirmar** (`POST .../canje/confirmar`): descuenta los puntos en `puntos` y aplica el descuento al total del carrito.
+
+---
+
 ## Modelo de base de datos
 
 ```
 cart
 ├── id       (PK)
 ├── user_id
-└── total
+└── total    (por defecto 0)
 
 cart_item
 ├── id          (PK)
@@ -86,9 +99,9 @@ cart_item
 
 Los tests cubren la capa de servicio con JUnit 5 + Mockito:
 
-| Clase de test   | Métodos cubiertos                                                                                                                                                                          |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `CartImplTest`  | getCart (crea carrito si no existe), addItem (agrega correctamente / producto no existe / stock insuficiente / producto duplicado), updateQuantity (actualiza / producto no en carrito), removeItem (elimina / producto no en carrito), clearCart (vacía y pone total en cero) |
+| Clase de test  | Métodos cubiertos                                                                                    |
+|----------------|------------------------------------------------------------------------------------------------------|
+| `CartImplTest` | Total, obtener carrito, agregar/actualizar/eliminar item, vaciar, aplicar promoción, canje de puntos |
 
 ---
 

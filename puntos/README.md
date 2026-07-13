@@ -1,12 +1,14 @@
 # Microservicio de Puntos
 
-Microservicio encargado del sistema de puntos de fidelización del supermercado. Permite acumular puntos automáticamente en base al monto de una compra y consultar el saldo de puntos de un usuario. También recibe eventos de Kafka para asignación automática de puntos.
+Microservicio encargado de la acumulación y canje de puntos de fidelización. 
+Asigna puntos automáticamente al completarse una compra (vía Kafka) y permite canjearlos como descuento en el carrito, a través de `carrito`.
 
 ---
 
 ## Configuración
 
 **Puerto:** `8090`  
+**Nombre de la aplicación:** `puntos`
 **Base de datos:** `db_puntos`
 
 **OpenAPI**
@@ -19,93 +21,91 @@ http://localhost:8090/swagger-ui.html
 http://localhost:8761/
 ```
 
----
-
-## Base de datos
-
-Las tablas son creadas automáticamente por Flyway al iniciar la aplicación.
-
-### `puntos`
-| Campo             | Tipo        | Descripción                                          |
-|-------------------|-------------|------------------------------------------------------|
-| id                | BIGINT (PK) | Identificador único del registro                     |
-| user_id           | BIGINT      | ID del usuario (único — un registro por usuario)     |
-| puntos_acumulados | INT         | Total de puntos acumulados por el usuario (≥ 0)      |
+**Gateway**
+```
+http://localhost:8080/
+```
 
 ---
 
-## URL base
+## Herramientas
 
-```
-http://localhost:8090
-```
-
+- Java 25 · Spring Boot 4.0.6
+- Spring Security + JWT
+- Spring Data JPA + Flyway
+- Spring Cloud Eureka Client
+- Spring Kafka (consumidor de eventos)
+- Spring HATEOAS
+- Springdoc OpenAPI (Swagger UI)
+- Docker
 ---
 
 ## Endpoints
 
 ### Puntos — `/api/v1/puntos`
 
-| Método | Ruta                | Descripción                              |
-|--------|---------------------|------------------------------------------|
-| POST   | `/`                 | Asignar puntos a un usuario por compra   |
-| GET    | `/{usuarioId}`      | Consultar puntos acumulados de un usuario |
+| Método | Ruta                                        | Descripción                                | Rol requerido                |
+|--------|----------------------------------------------|---------------------------------------------|---------------------------------|
+| GET    | `/api/v1/puntos/{usuarioId}`                  | Consultar los puntos acumulados de un usuario  | FUNCIONARIO o CLIENTE (dueño)   |
+| GET    | `/api/v1/puntos/{usuarioId}/canje/simular`    | Simular el canje de puntos (paso 1 de 2)       | FUNCIONARIO o CLIENTE (dueño)   |
+| POST   | `/api/v1/puntos/{usuarioId}/canje/confirmar`  | Confirmar el canje de puntos (paso 2 de 2)     | CLIENTE (dueño)                 |
+| POST   | `/api/v1/puntos`                              | Asignar puntos manualmente                     | FUNCIONARIO                     |
 
----
-
-### POST `/api/v1/puntos`
-
-Asigna puntos a un usuario en base al monto de su compra.
-
-> **Cálculo:** `puntos = monto_compra / 100` (parte entera).  
-> Ejemplo: una compra de $15.870 otorga **158 puntos**.
-
-Si el usuario ya tiene un registro de puntos, los nuevos puntos se **suman** a los acumulados. Si no tiene registro previo, se crea uno nuevo.
-
-**Body (JSON):**
-```json
-{
-  "usuarioId": 1,
-  "montoCompra": 15870.00
-}
-```
-
-**Respuesta (200 OK):**
-```json
-{
-  "usuarioId": 1,
-  "puntosAcumulados": 158
-}
-```
-
----
-
-### GET `/api/v1/puntos/{usuarioId}`
-
-Retorna el saldo total de puntos acumulados de un usuario.
-
-**Ejemplo:** `GET http://localhost:8090/api/v1/puntos/1`
-
-**Respuesta (200 OK):**
-```json
-{
-  "usuarioId": 1,
-  "puntosAcumulados": 158
-}
-```
-
-> Si el usuario no tiene puntos registrados, retorna error.
-
----
-
-## Reglas de negocio
-
+**Validaciones:**
+- Un cliente solo puede consultar y canjear sus propios puntos (verificado contra el id del token JWT).
+- Confirmar el canje es una acción exclusiva de `CLIENTE` — un `FUNCIONARIO` puede consultar y simular, pero no ejecuta canjes a nombre de otro usuario.
 - El `usuarioId` es obligatorio.
 - El `montoCompra` debe ser mayor a 0.
 - Los puntos se calculan como `(int)(montoCompra / 100)`.
 - Cada usuario tiene un único registro de puntos — los puntos nuevos se acumulan sobre el saldo existente.
 - Los puntos acumulados no pueden ser negativos.
 - El microservicio también escucha eventos de **Kafka** para recibir asignaciones de puntos de forma automática desde otros servicios.
+
+
+---
+
+## Flujo de canje (2 pasos, orquestado por `carrito`)
+
+1. `carrito` llama a `GET .../canje/simular` para saber a cuánto descuento equivalen los puntos disponibles, sin gastarlos todavía.
+2. Al confirmar la compra, `carrito` llama a `POST .../canje/confirmar`, que descuenta los puntos reales y queda registrado en el historial.
+
+---
+
+## Comunicación con otros servicios
+
+**Vía Kafka (asíncrona)**
+
+| Tópico consumido    | Grupo          | Acción disparada                                      |
+|---------------------|----------------|-------------------------------------------------------|
+| `compra-completada` | `puntos-group` | Asigna automáticamente puntos por la compra realizada |
+
+Este servicio, a su vez, es consumido vía Feign por `carrito` para simular y confirmar canjes.
+ 
+---
+
+## Modelo de base de datos
+
+```
+puntos
+├── id                  (PK)
+├── usuario_id           (not null)
+└── puntos_acumulados    (not null)
+ 
+puntos_historial
+├── id                 (PK)
+├── usuario_id          (not null)
+├── compra_id           (nullable — null si la asignación fue manual)
+├── puntos_otorgados    (not null)
+└── tipo                (not null — ej. GANADOS | CANJEADOS)
+```
+ 
+---
+
+## Pruebas unitarias
+
+| Clase de test    | Métodos cubiertos                                                            |
+|------------------|------------------------------------------------------------------------------|
+| `PuntosImplTest` | Consultar puntos, simular canje, confirmar canje, asignar puntos manualmente |
 
 ---
 

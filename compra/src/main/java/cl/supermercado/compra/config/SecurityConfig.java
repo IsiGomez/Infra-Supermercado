@@ -40,6 +40,9 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/compras")
                                 .hasRole("FUNCIONARIO")
 
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/compras/*")
+                        .hasAnyRole("FUNCIONARIO", "CLIENTE")
+
                         .requestMatchers("/api/v1/compras/**").hasRole("CLIENTE")
 
                         .anyRequest().authenticated()

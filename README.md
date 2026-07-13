@@ -13,43 +13,45 @@ Sistema distribuido de gestión de supermercado desarrollado con arquitectura de
 
 ## Microservicios implementados
 
-| Microservicio     | Carpeta                                              | Puerto | Descripción                                               |
-|-------------------|------------------------------------------------------|--------|-----------------------------------------------------------|
-| ms-usuario        | `ms-usuario-main/`                                   | 8081   | Gestión de personas, cuentas y roles. Emite JWT           |
-| ms-catalogo       | `ms-catalogo-main/catalogo/`                         | 8082   | Gestión de productos y categorías                         |
-| ms-inventario     | `ms-inventario-main/inventario/`                     | 8083   | Control de stock por producto                             |
-| ms-carrito        | `ms-carrito-main/carrito/`                           | 8084   | Carrito de compras, promociones y canje de puntos         |
-| ms-compra         | `Proyecto-Supermercado-Microservicio-Compra-main/Compra/` | 8085 | Registro de compras y publicación de eventos Kafka      |
-| ms-pago           | `pago/`                                              | 8086   | Procesamiento de pagos (TARJETA, CRÉDITO, EFECTIVO)       |
-| ms-promociones    | `promociones/`                                       | 8087   | Gestión de promociones por código de descuento            |
-| ms-seguimiento    | `seguimiento/`                                       | 8088   | Seguimiento del estado de una compra                      |
-| ms-notificaciones | `notificaciones/`                                    | 8089   | Notificaciones generadas al completar una compra          |
-| ms-puntos         | `puntos/`                                            | 8090   | Acumulación y canje de puntos de fidelización             |
-| eureka-server     | `eureka-server/`                                     | 8761   | Servidor de descubrimiento de servicios                   |
-| api-gateway       | `api-gateway/`                                       | 8080   | Punto de entrada único. Enruta y valida JWT               |
+| Microservicio     | Carpeta             | Puerto | Descripción                                           |
+|-------------------|---------------------|--------|-------------------------------------------------------|
+| ms-usuario        | `usuarios/`         | 8081   | Gestión de personas, cuentas y roles. Emite JWT       |
+| ms-catalogo       | `catalogo/`         | 8082   | Gestión de productos y categorías                     |
+| ms-inventario     | `inventario/`       | 8083   | Control de stock por producto                         |
+| ms-carrito        | `carrito/`          | 8084   | Carrito de compras, promociones y canje de puntos     |
+| ms-compra         | `compra/`           | 8085   | Registro de compras y publicación de eventos Kafka    |
+| ms-pago           | `pago/`             | 8086   | Procesamiento de pagos (TARJETA, CRÉDITO, EFECTIVO)   |
+| ms-promociones    | `promociones/`      | 8087   | Gestión de promociones por código de descuento        |
+| ms-seguimiento    | `seguimiento/`      | 8088   | Seguimiento del estado de una compra                  |
+| ms-notificaciones | `notificaciones/`   | 8089   | Notificaciones generadas al completar una compra      |
+| ms-puntos         | `puntos/`           | 8090   | Acumulación y canje de puntos de fidelización         |
+| eureka-server     | `eureka-server/`    | 8761   | Servidor de descubrimiento de servicios               |
+| api-gateway       | `api-gateway/`      | 8080   | Punto de entrada único. Enruta y valida JWT           |
 
 ---
 
 ## Rutas del API Gateway
 
-Todas las rutas pasan por `http://localhost:8080`. La ruta de autenticación es pública; el resto requiere token JWT en el header `Authorization: Bearer <token>`.
+Todas las rutas pasan por `http://localhost:8080`. Algunas rutas como el de autenticación y roles son públicas, pero el resto requiere token JWT en el header `Authorization: Bearer <token>`.
 
-| Ruta                          | Microservicio destino | Protegida |
-|-------------------------------|----------------------|-----------|
-| `POST /api/v1/auth`           | ms-usuario           | No        |
-| `/api/v1/persons/**`          | ms-usuario           | Sí        |
-| `/api/v1/roles/**`            | ms-usuario           | Sí        |
-| `/api/v1/logins/**`           | ms-usuario           | Sí        |
-| `/api/v1/products/**`         | ms-catalogo          | Sí        |
-| `/api/v1/categories/**`       | ms-catalogo          | Sí        |
-| `/api/v1/inventory/**`        | ms-inventario        | Sí        |
-| `/api/v1/carts/**`            | ms-carrito           | Sí        |
-| `/api/v1/compras/**`          | ms-compra            | Sí        |
-| `/api/v1/pagos/**`            | ms-pago              | Sí        |
-| `/api/v1/promociones/**`      | ms-promociones       | Sí        |
-| `/api/v1/seguimientos/**`     | ms-seguimiento       | Sí        |
-| `/api/v1/notificaciones/**`   | ms-notificaciones    | Sí        |
-| `/api/v1/puntos/**`           | ms-puntos            | Sí        |
+| Ruta                        | Microservicio destino | Protegida (`JWT`)    |
+|-----------------------------|-----------------------|----------------------|
+| `POST /api/v1/auth`         | ms-usuarios           | No                   |
+| `POST /api/v1/persons`      | ms-usuarios           | No — es el registro  |
+| `/api/v1/persons/**`        | ms-usuarios           | Sí                   |
+| `POST /api/v1/logins`       | ms-usuarios           | No — crea la cuenta  |
+| `/api/v1/logins/**`         | ms-usuarios           | Sí                   |
+| `/api/v1/roles/**`          | ms-usuarios           | No                   |
+| `/api/v1/products/**`       | ms-catalogo           | Sí                   |
+| `/api/v1/categories/**`     | ms-catalogo           | Sí                   |
+| `/api/v1/inventory/**`      | ms-inventario         | Sí                   |
+| `/api/v1/carts/**`          | ms-carrito            | Sí                   |
+| `/api/v1/compras/**`        | ms-compra             | Sí                   |
+| `/api/v1/pagos/**`          | ms-pago               | Sí                   |
+| `/api/v1/promociones/**`    | ms-promociones        | Sí                   |
+| `/api/v1/seguimientos/**`   | ms-seguimiento        | Sí                   |
+| `/api/v1/notificaciones/**` | ms-notificaciones     | Sí                   |
+| `/api/v1/puntos/**`         | ms-puntos             | Sí                   |
 
 ---
 
@@ -59,7 +61,7 @@ Cada microservicio expone su documentación de forma local. Acceder con el servi
 
 | Microservicio     | URL Swagger UI                              |
 |-------------------|---------------------------------------------|
-| ms-usuario        | http://localhost:8081/swagger-ui.html       |
+| ms-usuarios       | http://localhost:8081/swagger-ui.html       |
 | ms-catalogo       | http://localhost:8082/swagger-ui.html       |
 | ms-inventario     | http://localhost:8083/swagger-ui.html       |
 | ms-carrito        | http://localhost:8084/swagger-ui.html       |
@@ -69,6 +71,42 @@ Cada microservicio expone su documentación de forma local. Acceder con el servi
 | ms-seguimiento    | http://localhost:8088/swagger-ui.html       |
 | ms-notificaciones | http://localhost:8089/swagger-ui.html       |
 | ms-puntos         | http://localhost:8090/swagger-ui.html       |
+
+---
+
+## Arquitectura de eventos (Kafka)
+
+Cuando `ms-compra` confirma una compra, publica el evento `compra-completada` que es consumido por **4 microservicios en paralelo**:
+
+```
+                      ┌──────────────┐
+                      │  ms-compra   │
+                      │ (productor)  │
+                      └──────┬───────┘
+                             │ compra-completada
+              ┌──────────────┼──────────────┬──────────────┐
+              ▼              ▼              ▼              ▼
+      ms-inventario     ms-puntos    ms-seguimiento  ms-notificaciones
+       (descuenta        (asigna      (crea estado     (envía la
+        stock)            puntos)       inicial)        notificación)
+```
+
+Cada consumidor tiene su propio `groupId` (`inventario-group`, `puntos-group`, `seguimiento-group`, `notificaciones-group`), por lo que los 4 reciben el mismo evento de forma independiente.
+
+---
+
+## Comunicación síncrona entre microservicios (Feign)
+
+| Servicio origen | Servicio destino  | Motivo                                                              |
+|-----------------|-------------------|---------------------------------------------------------------------|
+| `carrito`       | `inventario`      | Verificar stock disponible al agregar un producto                   |
+| `carrito`       | `catalogo`        | Obtener datos del producto (nombre, precio) al agregarlo            |
+| `carrito`       | `puntos`          | Simular/confirmar el canje de puntos como descuento                 |
+| `carrito`       | `promociones`     | Validar y aplicar un código de promoción al carrito                 |
+| `compra`        | `pago`            | Verificar que el usuario tenga un pago exitoso antes de comprar     |
+| `compra`        | `carrito`         | Obtener el detalle del carrito y limpiarlo tras confirmar la compra |
+| `inventario`    | `catalogo`        | Validar que el producto exista antes de actualizar su stock         |
+| `pago`          | `carrito`         | Obtener el total del carrito para procesar el monto del pago        |
 
 ---
 
@@ -100,7 +138,7 @@ docker compose down -v
     1. `eureka-server`
     2. `api-gateway`
     3. Cualquier microservicio de negocio (sin orden entre ellos)
-3. Cada microservicio se levanta con `./mvnw spring-boot:run` desde su carpeta raíz, o directamente desde IntelliJ IDEA.
+3. Cada microservicio se levanta directamente desde IntelliJ IDEA.
 
 ### Verificación
 
@@ -112,6 +150,11 @@ docker compose down -v
 
 ## Autenticación
 
+El flujo completo de alta de un usuario nuevo es:
+
+1. **Crear la persona** — `POST http://localhost:8080/api/v1/persons` (público, sin token)
+2. **Crear la cuenta/credenciales** — `POST http://localhost:8080/api/v1/logins` (público, sin token), asociando la persona creada y un rol (`CLIENTE` o `FUNCIONARIO`)
+3. **Autenticarse para obtener el JWT:**
 Todos los endpoints protegidos requieren un token JWT obtenido mediante:
 
 ```
@@ -139,6 +182,7 @@ Authorization: Bearer <token>
 - Spring Data JPA + Flyway
 - Spring Cloud: Eureka, OpenFeign, Gateway (WebMVC)
 - Apache Kafka (eventos asincrónicos entre servicios)
+- Spring HATEOAS
 - MySQL 8.0
 - Springdoc OpenAPI (Swagger UI)
 - Docker · Docker Compose
