@@ -3,6 +3,10 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
 
+  instance:
+    hostname: ${RAILWAY_PRIVATE_DOMAIN}
+    prefer-ip-address: false
+
 
 app:
   jwt:
