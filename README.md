@@ -187,3 +187,85 @@ Authorization: Bearer <token>
 - Springdoc OpenAPI (Swagger UI)
 - Docker · Docker Compose
 - JUnit 5 + Mockito (pruebas unitarias)
+
+---
+
+## Despliegue remoto (Railway)
+
+El sistema está desplegado en Railway. Cada microservicio, Eureka y MySQL corren como servicios independientes dentro del mismo proyecto, comunicándose por red privada (`RAILWAY_PRIVATE_DOMAIN`). 
+El único punto de entrada pensado para uso externo es el **API Gateway**.
+
+### URL pública
+
+- **API Gateway:** `https://<tu-gateway>.up.railway.app`
+
+### Variables de entorno por tipo de servicio
+
+**Servicios con base de datos (usuarios, catalogo, inventario, carrito, compra, pago, promociones, seguimiento, notificaciones, puntos):**
+
+| Variable                     | Descripción                                                 |
+|------------------------------|-------------------------------------------------------------|
+| `SPRING_PROFILES_ACTIVE`     | `prod`                                                      |
+| `DB_HOST`, `DB_PORT`         | Referencian el servicio MySQL de Railway                    |
+| `DB_NAME`                    | Nombre de la base propia del servicio (ej. `db_usuarios`)   |
+| `DB_USERNAME`, `DB_PASSWORD` | Credenciales de MySQL (definidas en Railway, no en el repo) |
+| `EUREKA_URL`                 | URL interna de Eureka                                       |
+| `JWT_SECRET`                 | Clave para firmar/validar JWT                               |
+
+**Eureka Server:**
+
+| Variable                 | Descripción |
+|--------------------------|-------------|
+| `SPRING_PROFILES_ACTIVE` | `prod`      |
+
+**API Gateway:**
+
+| Variable                 | Descripción                                    |
+|--------------------------|------------------------------------------------|
+| `SPRING_PROFILES_ACTIVE` | `prod`                                         |
+| `EUREKA_URL`             | URL interna de Eureka                          |
+| `JWT_SECRET`             | Clave para validar JWT en las rutas protegidas |
+
+> Las variables reales (contraseñas, secretos) se configuran directamente en el panel de Railway y no se versionan en el repositorio.
+
+### Probar el flujo remoto
+
+```
+POST https://<tu-gateway>.up.railway.app/api/v1/auth
+Content-Type: application/json
+
+{
+  "username": "FunClaudia",
+  "password": "password"
+}
+```
+
+### Zookeeper y Kafka
+
+Al igual que en Docker Compose local, Kafka corre como dos servicios independientes desplegados desde imagen Docker (Confluent), comunicados por red privada de Railway.
+
+**Servicio `zookeeper`:**
+
+| Variable                | Valor  |
+|-------------------------|--------|
+| `ZOOKEEPER_CLIENT_PORT` | `2181` |
+| `ZOOKEEPER_TICK_TIME`   | `2000` |
+
+**Servicio `kafka`:**
+
+| Variable                                         | Valor                                                    |
+|--------------------------------------------------|----------------------------------------------------------|
+| `KAFKA_BROKER_ID`                                | `1`                                                      |
+| `KAFKA_ZOOKEEPER_CONNECT`                        | `${{zookeeper.RAILWAY_PRIVATE_DOMAIN}}:2181`             |
+| `KAFKA_ADVERTISED_LISTENERS`                     | `PLAINTEXT_INTERNAL://${{RAILWAY_PRIVATE_DOMAIN}}:29092` |
+| `KAFKA_LISTENER_SECURITY_PROTOCOL_MAP`           | `PLAINTEXT_INTERNAL:PLAINTEXT`                           |
+| `KAFKA_INTER_BROKER_LISTENER_NAME`               | `PLAINTEXT_INTERNAL`                                     |
+| `KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR`         | `1`                                                      |
+| `KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR` | `1`                                                      |
+| `KAFKA_TRANSACTION_STATE_LOG_MIN_ISR`            | `1`                                                      |
+| `KAFKA_AUTO_CREATE_TOPICS_ENABLE`                | `true`                                                   |
+
+Ninguno de los dos servicios necesita Networking público — solo se consumen internamente por los microservicios que publican/consumen eventos 
+(`compra`, `inventario`, `puntos`, `seguimiento`, `notificaciones`) mediante la variable `KAFKA_BOOTSTRAP_SERVERS`
+
+KAFKA_BOOTSTRAP_SERVERS=${{kafka.RAILWAY_PRIVATE_DOMAIN}}:29092
