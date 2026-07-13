@@ -40,3 +40,8 @@ spring:
             value:
               default:
                 type: cl.duoc.inventario.event.CompraCompletadaEvent
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
